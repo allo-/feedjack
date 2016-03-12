@@ -109,9 +109,12 @@
 <div id="footer">
 <div class="post-title">{% trans "People" %}</div>
 <div class="post-content">
+<div class="groupname">All</div>
+<div class="group">
 {% for feed in subscribers %}
 <span><a class="nombre" href="{{ site.url }}/user/{{ feed.feed.id }}" title="{{ feed.feed.title }}">{{ feed.name }}</a> (<a href="{{ feed.feed.link }}">{% trans "website" %}</a>, <a href="{{ feed.feed.feed_url }}" {% if feed.feed.last_modified %}title="{% blocktrans with feed.feed.last_modified as last_modified %}feed (last modified: {{ last_modified }}){% endblocktrans %}"{% else %}title="{% trans "feed" %}"{% endif %}>{% trans "feed" %}</a>)</span>
 {% endfor %}
+</div>
 </div>
 <div class="groupname">new posts</div>
 <div class="group">
@@ -130,13 +133,13 @@
 <a href="/since/{% now "Y-m-d H:i" %}/" title="open this now and refresh it later to see which posts are new">since NOW</a>
 <a href="/since/{% now "Y-m-d H:i" %}/">(older posts first)</a>
 </div>
-</div>
 {% if request.user.is_authenticated %}
 <div class="groupname">Admin</div>
 <div class="group">
 <a href="/admin/feedjack/subscriber/add/">add Subscriber</a>
 </div>
 {%endif%}
+</div>
 </div>
 </body>
 

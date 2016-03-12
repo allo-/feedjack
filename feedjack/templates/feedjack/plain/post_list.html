@@ -127,8 +127,8 @@
 <a href="/since/30_days/">since 30 days ago</a>
 <a href="/since/30_days/asc/">(older posts first)</a>
 &nbsp;&nbsp;
-<a href="/since/{% now Y-m-d H:i %}/" title="open this now and refresh it later to see which posts are new">since NOW</a>
-<a href="/since/{% now Y-m-d H:i %}/">(older posts first)</a>
+<a href="/since/{% now "Y-m-d H:i" %}/" title="open this now and refresh it later to see which posts are new">since NOW</a>
+<a href="/since/{% now "Y-m-d H:i" %}/">(older posts first)</a>
 </div>
 </div>
 {% if request.user.is_authenticated %}

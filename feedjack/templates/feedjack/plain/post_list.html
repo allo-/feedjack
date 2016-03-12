@@ -80,6 +80,8 @@
       {% if item.comments %}
         <a href="{{ item.comments }}">({% trans "Comments" %})</a>
       {% endif %}
+      <br />
+      <a href="/since/{{ item.date_modified|date:"Y-m-d H:i" }}/asc/">Later Posts</a>
     </div>
   </div>
   </div>

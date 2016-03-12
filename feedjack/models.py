@@ -864,7 +864,8 @@ class Subscriber(models.Model):
 	name = models.CharField(_('name'), max_length=100, null=True, blank=True,
 		help_text=_('Keep blank to use the Feed\'s original name.') )
 	shortname = models.CharField( _('shortname'), max_length=50, null=True,
-		blank=True, help_text=_('Keep blank to use the Feed\'s original shortname.') )
+		blank=True, help_text=_('Keep blank to use the Feed\'s original shortname.'))
+	group = models.ForeignKey('Group', verbose_name=_('group'), null=True, blank=True)
 	is_active = models.BooleanField( _('is active'), default=True,
 		help_text=_('If disabled, this subscriber will not appear in the site or in the site\'s feed.') )
 
@@ -903,6 +904,12 @@ class Subscriber(models.Model):
 
 signals.pre_save.connect(Subscriber._update_handler_check, sender=Subscriber)
 signals.post_save.connect(Subscriber._update_handler, sender=Subscriber)
+
+class Group(models.Model):
+    name=models.CharField(_('name'), max_length=100)
+    parent=models.ForeignKey('Group', verbose_name=_('parent group'), blank=True, null=True)
+    def __unicode__(self):
+        return u'Group: "%s"'%self.name
 
 
 

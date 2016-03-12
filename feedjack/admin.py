@@ -53,6 +53,12 @@ class SubscriberAdmin(admin.ModelAdmin):
 admin.site.register(models.Subscriber, SubscriberAdmin)
 
 
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'parent')
+    search_fields = ('name',)
+admin.site.register(models.Group, GroupAdmin)
+
+
 class FilterBaseAdmin(admin.ModelAdmin):
 	list_display = 'name', 'handler_name',\
 		'crossref', 'crossref_span', 'handler_description'

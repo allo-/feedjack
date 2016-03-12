@@ -195,6 +195,9 @@ features`_ (which only work with Django-1.7+).
   the one that matches current db state and run e.g. ``./manage.py migrate
   feedjack 0013 --fake`` to make South aware of it.
 
+  You need to downgrade Django to a version before 1.7, i.e using pip:
+  ``pip install -U 'django<1.7'``
+
   In case of pre-fork Feedjack versions (0.9.16 and below), this would be very
   first (0001) schema version.
 

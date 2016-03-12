@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
 from feedjack import views
 
 
@@ -70,4 +70,6 @@ urlpatterns.extend( (url, views.mainview)
 # Index page
 urlpatterns.append((r'^$', views.mainview))
 
-urlpatterns = patterns('', *urlpatterns)
+#urlpatterns = patterns('', *urlpatterns)
+# new django way. TODO: cleanup the creation of the urls
+urlpatterns = [url(*x) for x in urlpatterns]

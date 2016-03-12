@@ -109,36 +109,49 @@
 <div id="footer">
 <div class="post-title">{% trans "People" %}</div>
 <div class="post-content">
-<div class="groupname">All</div>
+
+{% for group in groups %}
+    <div class="groupname">{{ group.name }}</div>
+    <div class="group">
+    {% for feed in group.subscriber_set.all %}
+        <span><a class="nombre" href="{{ site.url }}/user/{{ feed.feed.id }}" title="{{ feed.feed.title }}">{{ feed.name }}</a> (<a href="{{ feed.feed.link }}">{% trans "website" %}</a>, <a href="{{ feed.feed.feed_url }}" {% if feed.feed.last_modified %}title="{% blocktrans with feed.feed.last_modified as last_modified %}feed (last modified: {{ last_modified }}){% endblocktrans %}"{% else %}title="{% trans "feed" %}"{% endif %}>{% trans "feed" %}</a>)</span>
+    {% endfor %}
+    </div>
+{% endfor %}
+
+<div class="groupname">Ungrouped</div>
 <div class="group">
-{% for feed in subscribers %}
-<span><a class="nombre" href="{{ site.url }}/user/{{ feed.feed.id }}" title="{{ feed.feed.title }}">{{ feed.name }}</a> (<a href="{{ feed.feed.link }}">{% trans "website" %}</a>, <a href="{{ feed.feed.feed_url }}" {% if feed.feed.last_modified %}title="{% blocktrans with feed.feed.last_modified as last_modified %}feed (last modified: {{ last_modified }}){% endblocktrans %}"{% else %}title="{% trans "feed" %}"{% endif %}>{% trans "feed" %}</a>)</span>
+{% for feed in ungrouped %}
+    <span><a class="nombre" href="{{ site.url }}/user/{{ feed.feed.id }}" title="{{ feed.feed.title }}">{{ feed.name }}</a> (<a href="{{ feed.feed.link }}">{% trans "website" %}</a>, <a href="{{ feed.feed.feed_url }}" {% if feed.feed.last_modified %}title="{% blocktrans with feed.feed.last_modified as last_modified %}feed (last modified: {{ last_modified }}){% endblocktrans %}"{% else %}title="{% trans "feed" %}"{% endif %}>{% trans "feed" %}</a>)</span>
 {% endfor %}
 </div>
 </div>
+
 <div class="groupname">new posts</div>
 <div class="group">
-<a href="/since/yesterday/">since yesterday</a>
-<a href="/since/yesterday/asc/">(older posts first)</a>
-&nbsp;&nbsp;
-<a href="/since/week/">since last week</a>
-<a href="/since/week/asc/">(older posts first)</a>
-&nbsp;&nbsp;
-<a href="/since/10_days/">since 10 days ago</a>
-<a href="/since/10_days/asc/">(older posts first)</a>
-&nbsp;&nbsp;
-<a href="/since/30_days/">since 30 days ago</a>
-<a href="/since/30_days/asc/">(older posts first)</a>
-&nbsp;&nbsp;
-<a href="/since/{% now "Y-m-d H:i" %}/" title="open this now and refresh it later to see which posts are new">since NOW</a>
-<a href="/since/{% now "Y-m-d H:i" %}/">(older posts first)</a>
+    <a href="/since/yesterday/">since yesterday</a>
+    <a href="/since/yesterday/asc/">(older posts first)</a>
+    &nbsp;&nbsp;
+    <a href="/since/week/">since last week</a>
+    <a href="/since/week/asc/">(older posts first)</a>
+    &nbsp;&nbsp;
+    <a href="/since/10_days/">since 10 days ago</a>
+    <a href="/since/10_days/asc/">(older posts first)</a>
+    &nbsp;&nbsp;
+    <a href="/since/30_days/">since 30 days ago</a>
+    <a href="/since/30_days/asc/">(older posts first)</a>
+    &nbsp;&nbsp;
+    <a href="/since/{% now "Y-m-d H:i" %}/" title="open this now and refresh it later to see which posts are new">since NOW</a>
+    <a href="/since/{% now "Y-m-d H:i" %}/">(older posts first)</a>
 </div>
 {% if request.user.is_authenticated %}
-<div class="groupname">Admin</div>
-<div class="group">
-<a href="/admin/feedjack/subscriber/add/">add Subscriber</a>
-</div>
+    <div class="groupname">Admin</div>
+    <div class="group">
+    <a href="/admin/feedjack/subscriber/add/">add Subscriber</a>
+    </div>
 {%endif%}
+
+</div>
 </div>
 </div>
 </body>

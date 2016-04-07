@@ -57,6 +57,8 @@ else:
 
 	def html_cleaner(string):
 		'str -> str, like lxml.html.clean.clean_html, but removing styles as well.'
+		if string == "":
+			return string
 		doc = lxml_soup(string)
 		lxml_Cleaner(style=True)(doc)
 		return lxml_tostring(doc)

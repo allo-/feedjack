@@ -11,7 +11,7 @@ from django.utils.encoding import smart_unicode, force_unicode
 from django.utils.html import escape
 from django.utils import timezone
 
-from feedjack import models, fjcache
+from feedjack import models
 
 import itertools as it, operator as op, functools as ft
 from collections import OrderedDict

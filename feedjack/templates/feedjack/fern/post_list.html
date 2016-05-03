@@ -8,6 +8,7 @@
 	<title>{% if feed %}{{ feed.title }} - {% endif %}{{ site.title }}</title>
 	<link rel="stylesheet" href="{{ media_url }}/default.css" type="text/css"/>
 	<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="{{ site.url }}/feed/rss/" />
+    <meta name="referrer" content="never">
 	<script type="text/javascript" src="{{ media_url }}/jquery.js"></script>
 	<script type="text/javascript" src="{{ media_url }}/fold.fern.js"></script>
 	{% block extrastyle %}{% endblock %}

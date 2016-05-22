@@ -2,10 +2,10 @@
 
 
 from django.utils import feedgenerator
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponsePermanentRedirect
 from django.utils.cache import patch_vary_headers
-from django.template import Context, RequestContext, loader
+from django.template import Context, loader
 from django.views.generic import RedirectView
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -231,9 +231,7 @@ def _mainview(request, view_data, **criterias):
     response, site, cachekey = view_data
     if not response:
         ctx = fjlib.page_context(request, site, **criterias)
-        response = render_to_response(
-            u'feedjack/{0}/post_list.html'.format(site.template),
-            ctx, context_instance=RequestContext(request) )
+        response = render(request, u'feedjack/{0}/post_list.html'.format(site.template), ctx)
         # per host caching, in case the cache middleware is enabled
         patch_vary_headers(response, ['Host'])
         if site.use_internal_cache:

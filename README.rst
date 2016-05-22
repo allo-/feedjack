@@ -23,25 +23,14 @@ Installation
 Python module (Django app)
 ``````````````````````````
 
-This feedjack fork is a regular package for Python 2.7 (not 3.X).
+For this fork use
 
-Best way to install it (from PyPI_) would be to use pip_::
+  % pip install 'git+https://github.com/allo-/feedjack.git#egg=Feedjack'
 
-  % pip install Feedjack
-
-If you don't have it, use::
+If you don't have pip installed, use::
 
   % easy_install pip
-  % pip install Feedjack
-
-Alternatively (see also `pip2014.com`_ and `pip install guide`_)::
-
-  % curl https://raw.github.com/pypa/pip/master/contrib/get-pip.py | python
-  % pip install Feedjack
-
-Current-git version can be installed like this::
-
-  % pip install 'git+https://github.com/mk-fg/feedjack.git#egg=Feedjack'
+  % pip install 'git+https://github.com/allo-/feedjack.git#egg=Feedjack'
 
 All of these will automatically fetch and install 'feedjack' Django app to a
 configured python site-path, along with all the required dependencies.
@@ -55,7 +44,6 @@ virtualenv_ to do unprivileged installs into custom paths.
 
 .. _PyPI: https://pypi.python.org/pypi/Feedjack/
 .. _pip: http://pip-installer.org/
-.. _pip2014.com: http://pip2014.com/
 .. _pip install guide: http://www.pip-installer.org/en/latest/installing.html
 .. _~/.pydistutils.cfg: http://docs.python.org/install/index.html#distutils-configuration-files
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv

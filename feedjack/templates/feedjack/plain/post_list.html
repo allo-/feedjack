@@ -23,9 +23,11 @@
         .mark-post td {
             border: thin solid black;
         }
-        .mark-post td.active {
-            background-color: lightgreen;
-        }
+        .mark-post td.active.U { background-color: pink }
+        .mark-post td.active.R { background-color: lightgreen }
+        .mark-post td.active.L { background-color: lightyellow }
+        .mark-post td.active.F { background-color: yellow }
+        .mark-post td.active.I { background-color: red }
         .mark-post td a {
             display: block;
             padding: 1ex;
@@ -124,11 +126,11 @@
   {% if request.user.is_authenticated %}
   <table class="mark-post">
     <tr>
-      <td id="mark-post-{{ item.id }}-U"{% if item.mark == "U" %} " class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "U");event.preventDefault();'>Unread</a></td>
-      <td id="mark-post-{{ item.id }}-R"{% if item.mark == "R" %} class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "R");event.preventDefault();'>Read</a></td>
-      <td id="mark-post-{{ item.id }}-L"{% if item.mark == "L" %} class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "L");event.preventDefault();'>Read Later</a></td>
-      <td id="mark-post-{{ item.id }}-F"{% if item.mark == "F" %} class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "F");event.preventDefault();'>Favorite</a></td>
-      <td id="mark-post-{{ item.id }}-I"{% if item.mark == "I" %} class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "I");event.preventDefault();'>Important</a></td>
+      <td id="mark-post-{{ item.id }}-U" class="U{% if item.mark == "U" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "U");event.preventDefault();'>Unread</a></td>
+      <td id="mark-post-{{ item.id }}-R" class="R{% if item.mark == "R" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "R");event.preventDefault();'>Read</a></td>
+      <td id="mark-post-{{ item.id }}-L" class="L{% if item.mark == "L" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "L");event.preventDefault();'>Read Later</a></td>
+      <td id="mark-post-{{ item.id }}-F" class="F{% if item.mark == "F" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "F");event.preventDefault();'>Favorite</a></td>
+      <td id="mark-post-{{ item.id }}-I" class="I{% if item.mark == "I" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "I");event.preventDefault();'>Important</a></td>
     </tr>
   </table>
   {% endif %}

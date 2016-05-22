@@ -2,7 +2,7 @@
 
 
 from django.utils import feedgenerator
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404, HttpResponsePermanentRedirect
 from django.utils.cache import patch_vary_headers
 from django.template import Context, loader
@@ -239,3 +239,12 @@ def _mainview(request, view_data, **criterias):
                 (response, ctx_get(ctx, 'last_modified')) )
     else: response = response[0]
     return response
+
+def mark_post(request, post_id, mark):
+    if not request.user.is_authenticated():
+        return Http404("No user logged in")
+    post = get_object_or_404(models.Post, id=post_id)
+    post_mark, created = models.PostMark.objects.get_or_create(user=request.user, post=post, defaults={"mark": "U"})
+    post_mark.mark = mark
+    post_mark.save()
+    return HttpResponse("OK")

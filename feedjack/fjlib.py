@@ -132,7 +132,7 @@ _since_offsets = {
 	'yesterday': 1, 'week': 7, 'month': 30,
 	'10_days': 10, '30_days': 30 }
 
-def get_page(site, page=1, **criterias):
+def get_page(request, site, page=1, **criterias):
 	'Returns a paginator object and a requested page from it.'
 	global _since_formats_vary
 
@@ -167,6 +167,13 @@ def get_page(site, page=1, **criterias):
 	posts = models.Post.objects.filtered(site, **criterias)\
 		.sorted(site.order_posts_by, force=order_force)\
 		.select_related('feed')
+	if request.user.is_authenticated:
+		for post in posts:
+			mark = models.PostMark.objects.filter(user=request.user, post=post)
+			if len(mark):
+				post.mark = mark[0].mark
+			else:
+				post.mark = "U" #unread
 
 	paginator = Paginator(posts, site.posts_per_page)
 	try: return paginator.page(page)
@@ -183,7 +190,7 @@ def page_context(request, site, **criterias):
 		try: feed = models.Feed.objects.get(pk=feed)
 		except ObjectDoesNotExist: raise Http404
 
-	page = get_page(site, page=page, **criterias)
+	page = get_page(request, site, page=page, **criterias)
 	subscribers = site.active_subscribers
 
 	if site.show_tagcloud and page.object_list:

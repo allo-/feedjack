@@ -19,6 +19,42 @@
         {% block extrastyle %}{% endblock %}
         {% block extrahead %}{% endblock %}
         <title>{{ site.title }}</title>
+    <style>
+        .mark-post td {
+            border: thin solid black;
+        }
+        .mark-post td.active {
+            background-color: lightgreen;
+        }
+        .mark-post td a {
+            display: block;
+            padding: 1ex;
+        }
+        .mark-post td:hover {
+            background-color: lightgrey;
+        }
+    </style>
+    <script>
+        function mark_post(post_id, mark) {
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function() {
+                if(this.readyState == 4) {
+                    if(this.status != 200) {
+                        alert("Error marking post.");
+                    }
+                }
+            }
+            request.open("GET", "/mark-post/"+post_id+"/"+mark+"/", true);
+            request.send();
+            document.getElementById("mark-post-"+post_id+"-U").classList.remove("active");
+            document.getElementById("mark-post-"+post_id+"-R").classList.remove("active");
+            document.getElementById("mark-post-"+post_id+"-L").classList.remove("active");
+            document.getElementById("mark-post-"+post_id+"-F").classList.remove("active");
+            document.getElementById("mark-post-"+post_id+"-I").classList.remove("active");
+
+            document.getElementById("mark-post-"+post_id+"-"+mark).classList.add("active");
+        }
+    </script>
 
 </head>
 
@@ -85,6 +121,17 @@
   </div>
   <br />
   <a href="/since/{{ item.date_modified|date:"Y-m-d H:i" }}/asc/" style="float: right">Later Posts</a>
+  {% if request.user.is_authenticated %}
+  <table class="mark-post">
+    <tr>
+      <td id="mark-post-{{ item.id }}-U"{% if item.mark == "U" %} " class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "U");event.preventDefault();'>Unread</a></td>
+      <td id="mark-post-{{ item.id }}-R"{% if item.mark == "R" %} class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "R");event.preventDefault();'>Read</a></td>
+      <td id="mark-post-{{ item.id }}-L"{% if item.mark == "L" %} class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "L");event.preventDefault();'>Read Later</a></td>
+      <td id="mark-post-{{ item.id }}-F"{% if item.mark == "F" %} class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "F");event.preventDefault();'>Favorite</a></td>
+      <td id="mark-post-{{ item.id }}-I"{% if item.mark == "I" %} class="active"{% endif %}><a href="#" onclick='mark_post({{ item.id}}, "I");event.preventDefault();'>Important</a></td>
+    </tr>
+  </table>
+  {% endif %}
   </div>
 {% endfor %}
 </div>

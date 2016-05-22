@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
 from django.utils import timezone
 from django.dispatch import Signal
+from django.contrib.auth.models import User
 
 from feedjack import fjcache
 
@@ -728,6 +729,7 @@ class Post(models.Model):
 	hidden = models.BooleanField( default=False,
 		help_text='Manual switch to completely hide the Post,'
 			' although it will be present for internal checks, like filters.' )
+	marked = models.ManyToManyField(User, through='PostMark', blank=True)
 
 	# Media enclosures data is stored as a opaque serializad data blob in db,
 	#  and should only be accessed through de-/serializing descriptor, never directly.
@@ -911,6 +913,17 @@ class Group(models.Model):
     def __unicode__(self):
         return u'Group: "%s"'%self.name
 
+class PostMark(models.Model):
+    MARKERS = (
+        ('U', 'Unread'),
+        ('R', 'Read'),
+        ('T', 'To Read'),
+        ('I', 'Important'),
+        ('F', 'Favorite')
+    )
+    post=models.ForeignKey('Post', db_index=True)
+    user=models.ForeignKey(User, db_index=True)
+    mark=models.CharField(max_length=1, choices=MARKERS, db_index=True)
 
 
 # Following signals are only used in feedjack transactions,

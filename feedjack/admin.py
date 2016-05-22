@@ -83,3 +83,4 @@ admin.site.register(models.PostProcessor, PostProcessorAdmin)
 
 
 admin.site.register(models.Link)
+admin.site.register(models.PostMark)

@@ -70,6 +70,9 @@ urlpatterns.extend( (url, views.mainview)
 # Index page
 urlpatterns.append((r'^$', views.mainview))
 
+# Ajax Stuff
+urlpatterns.append((r'^mark-post/(?P<post_id>[0-9]*)/(?P<mark>[A-Z])/$', views.mark_post))
+
 #urlpatterns = patterns('', *urlpatterns)
 # new django way. TODO: cleanup the creation of the urls
 urlpatterns = [url(*x) for x in urlpatterns]

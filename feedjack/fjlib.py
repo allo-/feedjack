@@ -169,8 +169,10 @@ def get_page(request, site, page=1, **criterias):
 		.select_related('feed')
 	if request.user.is_authenticated:
 		for post in posts:
-			mark = models.PostMark.objects.filter(user=request.user, post=post)
-			if len(mark):
+			mark = None
+			if request.user.is_authenticated():
+				mark = models.PostMark.objects.filter(user=request.user, post=post)
+			if mark:
 				post.mark = mark[0].mark
 			else:
 				post.mark = "U" #unread

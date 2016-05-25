@@ -70,7 +70,7 @@
 
 <div id="paginate">
     {% if has_previous %}
-        <div class="pageitem"><a href="?page={{ previous }}">&lt;&lt;</a></div>
+        <div class="pageitem"><a href="?page={{ previous }}{% for key, value in url_parameters.items %}{% if key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">&lt;&lt;</a></div>
     {% endif %}
     <div class="pageitem">
         Page {{ page }} of {{ pages }} ({% blocktrans count hits as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %})
@@ -82,16 +82,16 @@
         <div class="pageitem tagname">{{ tag.name }}</div>
     {% endif %}
     {% if has_next %}
-        <div class="pageitem"><a href="?page={{ next }}">&gt;&gt;</a></div>
+        <div class="pageitem"><a href="?page={{ next }}{% for key, value in url_parameters.items %}{% if key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">&gt;&gt;</a></div>
     {% endif %}
-    {% comment %}TODO: use urlparameters to append all other GET parameters to the links{% endcomment %}
+    {% comment %}appending page would not make sense for filters, which change the number of posts{% endcomment %}
     <p />
     Filter by:
-    <a href="?marked=U">Unread</a>
-    <a href="?marked=R">Read</a>
-    <a href="?marked=L">Read Later</a>
-    <a href="?marked=F">Favorite</a>
-    <a href="?marked=I">Important</a>
+    <a href="?marked=U{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Unread</a>
+    <a href="?marked=R{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page"  %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Read</a>
+    <a href="?marked=L{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page"  %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Read Later</a>
+    <a href="?marked=F{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page"  %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Favorite</a>
+    <a href="?marked=I{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page"  %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Important</a>
 </div>
 
 <div id="content">
@@ -149,7 +149,7 @@
 
 <div id="paginate">
 {% if has_previous %}
-<div class="pageitem"><a href="?page={{ previous }}">&lt;&lt;</a></div>
+<div class="pageitem"><a href="?page={{ previous }}{% for key, value in url_parameters.items %}{% if key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">&lt;&lt;</a></div>
 {% endif %}
 <div class="pageitem">
   Page {{ page }} of {{ pages }} ({% blocktrans count hits as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %})
@@ -161,7 +161,7 @@
 <div class="pageitem tagname">{{ tag.name }}</div>
 {% endif %}
 {% if has_next %}
-<div class="pageitem"><a href="?page={{ next }}">&gt;&gt;</a></div>
+<div class="pageitem"><a href="?page={{ next }}{% for key, value in url_parameters.items %}{% if key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">&gt;&gt;</a></div>
 {% endif %}
 </div>
 

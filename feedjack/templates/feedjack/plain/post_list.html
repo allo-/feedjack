@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load urlparams %}
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -70,7 +71,7 @@
 
 <div id="paginate">
     {% if has_previous %}
-        <div class="pageitem"><a href="?page={{ previous }}{% for key, value in url_parameters.items %}{% if key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">&lt;&lt;</a></div>
+        <div class="pageitem"><a href="?page={{ previous }}{% urlparams url_parameters "page" %}">&lt;&lt;</a></div>
     {% endif %}
     <div class="pageitem">
         Page {{ page }} of {{ pages }} ({% blocktrans count hits as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %})
@@ -82,16 +83,16 @@
         <div class="pageitem tagname">{{ tag.name }}</div>
     {% endif %}
     {% if has_next %}
-        <div class="pageitem"><a href="?page={{ next }}{% for key, value in url_parameters.items %}{% if key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">&gt;&gt;</a></div>
+        <div class="pageitem"><a href="?page={{ next }}{% urlparams url_parameters "page" %}">&gt;&gt;</a></div>
     {% endif %}
     {% comment %}appending page would not make sense for filters, which change the number of posts{% endcomment %}
     <p />
     Filter by:
-    <a href="?marked=U{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Unread</a>
-    <a href="?marked=R{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page"  %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Read</a>
-    <a href="?marked=L{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page"  %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Read Later</a>
-    <a href="?marked=F{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page"  %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Favorite</a>
-    <a href="?marked=I{% for key, value in url_parameters.items %}{% if key != "marked" and key != "page"  %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">Important</a>
+    <a href="?marked=U{% urlparams url_parameters "marked&page" %}">Unread</a>
+    <a href="?marked=R{% urlparams url_parameters "marked&page" %}">Read</a>
+    <a href="?marked=L{% urlparams url_parameters "marked&page" %}">Read Later</a>
+    <a href="?marked=F{% urlparams url_parameters "marked&page" %}">Favorite</a>
+    <a href="?marked=I{% urlparams url_parameters "marked&page" %}">Important</a>
 </div>
 
 <div id="content">
@@ -149,7 +150,7 @@
 
 <div id="paginate">
 {% if has_previous %}
-<div class="pageitem"><a href="?page={{ previous }}{% for key, value in url_parameters.items %}{% if key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">&lt;&lt;</a></div>
+<div class="pageitem"><a href="?page={{ previous }}{% urlparams url_parameters "page" %}">&lt;&lt;</a></div>
 {% endif %}
 <div class="pageitem">
   Page {{ page }} of {{ pages }} ({% blocktrans count hits as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %})
@@ -161,7 +162,7 @@
 <div class="pageitem tagname">{{ tag.name }}</div>
 {% endif %}
 {% if has_next %}
-<div class="pageitem"><a href="?page={{ next }}{% for key, value in url_parameters.items %}{% if key != "page" %}&{{ key }}={{ value.0 }}{% endif %}{% endfor %}">&gt;&gt;</a></div>
+<div class="pageitem"><a href="?page={{ next }}{% urlparams url_parameters "page" %}">&gt;&gt;</a></div>
 {% endif %}
 </div>
 

@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import connection
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
@@ -167,8 +168,24 @@ def get_page(request, site, page=1, **criterias):
 	posts = models.Post.objects.filtered(site, **criterias)\
 		.sorted(site.order_posts_by, force=order_force)\
 		.select_related('feed')
-	if request.user.is_authenticated:
-		for post in posts:
+
+	# filter by PostMark, like ?marked=U,I,L or ?marked=R
+	mark_filter = request.GET.get("marked", "")
+	if mark_filter and request.user.is_authenticated():
+		mark_filter = mark_filter.split(",")
+		if "U" in mark_filter: # for unread, list posts without PostMark object, too
+			posts = posts.filter(Q(postmark__user=request.user, postmark__mark__in=mark_filter)|~Q(postmark__user=request.user))
+		else:
+			posts = posts.filter(postmark__user=request.user, postmark__mark__in=mark_filter)
+
+	paginator = Paginator(posts, site.posts_per_page)
+	try:
+		paginator_page = paginator.page(page)
+	except InvalidPage:
+		raise Http404()
+
+	if request.user.is_authenticated():
+		for post in paginator_page.object_list:
 			mark = None
 			if request.user.is_authenticated():
 				mark = models.PostMark.objects.filter(user=request.user, post=post)
@@ -177,9 +194,7 @@ def get_page(request, site, page=1, **criterias):
 			else:
 				post.mark = "U" #unread
 
-	paginator = Paginator(posts, site.posts_per_page)
-	try: return paginator.page(page)
-	except InvalidPage: raise Http404
+	return paginator_page
 
 
 def page_context(request, site, **criterias):

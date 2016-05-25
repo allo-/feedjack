@@ -272,7 +272,9 @@ def page_context(request, site, **criterias):
 		next = page.number + 1,
 		previous = page.number - 1,
 		pages = page.paginator.num_pages,
-		hits = page.paginator.count )
+		hits = page.paginator.count,
+		url_parameters = request.GET
+	)
 
 	get_extra_context(site, ctx)
 

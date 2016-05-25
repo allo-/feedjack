@@ -69,21 +69,29 @@
 </div>
 
 <div id="paginate">
-{% if has_previous %}
-<div class="pageitem"><a href="?page={{ previous }}">&lt;&lt;</a></div>
-{% endif %}
-<div class="pageitem">
-  Page {{ page }} of {{ pages }} ({% blocktrans count hits as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %})
-</div>
-{% if user %}
-<div class="pageitem username"><a href="{{ user.feed.link }}">{{ user.name }}</a></div>
-{% endif %}
-{% if tag %}
-<div class="pageitem tagname">{{ tag.name }}</div>
-{% endif %}
-{% if has_next %}
-<div class="pageitem"><a href="?page={{ next }}">&gt;&gt;</a></div>
-{% endif %}
+    {% if has_previous %}
+        <div class="pageitem"><a href="?page={{ previous }}">&lt;&lt;</a></div>
+    {% endif %}
+    <div class="pageitem">
+        Page {{ page }} of {{ pages }} ({% blocktrans count hits as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %})
+    </div>
+    {% if user %}
+        <div class="pageitem username"><a href="{{ user.feed.link }}">{{ user.name }}</a></div>
+    {% endif %}
+    {% if tag %}
+        <div class="pageitem tagname">{{ tag.name }}</div>
+    {% endif %}
+    {% if has_next %}
+        <div class="pageitem"><a href="?page={{ next }}">&gt;&gt;</a></div>
+    {% endif %}
+    {% comment %}TODO: use urlparameters to append all other GET parameters to the links{% endcomment %}
+    <p />
+    Filter by:
+    <a href="?marked=U">Unread</a>
+    <a href="?marked=R">Read</a>
+    <a href="?marked=L">Read Later</a>
+    <a href="?marked=F">Favorite</a>
+    <a href="?marked=I">Important</a>
 </div>
 
 <div id="content">

@@ -161,12 +161,13 @@ def parse_since_date(since):
 				timezone.pytz.exceptions.AmbiguousTimeError
 				if timezone.pytz else RuntimeError ):
 			# Since there's no "right" way here anyway...
-			criterias['since'] = since.replace(tzinfo=timezone)
+			since = since.replace(tzinfo=timezone)
 		return since
 
-def get_page(request, site, page=1, **criterias):
+def get_page(request, site, page=1):
 	'Returns a paginator object and a requested page from it.'
 
+	criterias = {}
 	if 'since' in request.GET:
 		since = request.GET.get('since')
 		since = parse_since_date(since)
@@ -209,17 +210,17 @@ def get_page(request, site, page=1, **criterias):
 	return paginator_page
 
 
-def page_context(request, site, **criterias):
+def page_context(request, site):
 	'Returns the context dictionary for a page view.'
 	try: page = int(request.GET.get('page', 1))
 	except ValueError: page = 1
 
-	feed, tag = criterias.get('feed'), criterias.get('tag')
+	feed, tag = request.GET.get('feed'), request.GET.get('tag')
 	if feed:
 		try: feed = models.Feed.objects.get(pk=feed)
 		except ObjectDoesNotExist: raise Http404
 
-	page = get_page(request, site, page=page, **criterias)
+	page = get_page(request, site, page=page)
 	subscribers = site.active_subscribers
 
 	if site.show_tagcloud and page.object_list:

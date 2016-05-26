@@ -157,27 +157,31 @@ def opml(request):
     return blogroll(request, 'opml')
 
 
-def buildfeed(request, feedclass, **criterias):
+def buildfeed(request, feedclass):
     'View that handles the feeds.'
     view_data = initview(request)
-    wrap = lambda func: ft.partial(func, _view_data=view_data, **criterias)
+    wrap = lambda func: ft.partial(func, _view_data=view_data)
     return condition(
             etag_func=wrap(cache_etag),
             last_modified_func=wrap(cache_last_modified) )\
-        (_buildfeed)(request, feedclass, view_data, **criterias)
+        (_buildfeed)(request, feedclass, view_data)
 
-def _buildfeed(request, feedclass, view_data, **criterias):
+def _buildfeed(request, feedclass, view_data):
     # TODO: quite a mess, can't it be handled with a default feed-views?
     response, site, cachekey = view_data
     if response: return response[0]
 
     feed_title = site.title
-    if criterias.get('feed_id'):
+    if request.GET.get('feed_id'):
         try:
+            feed_id = request.GET.get('feed_id')
             feed_title = u'{0} - {1}'.format(
-                models.Feed.objects.get(id=criterias['feed_id']).title, feed_title )
-        except ObjectDoesNotExist: raise Http404 # no such feed
-    object_list = fjlib.get_page(site, page=1, **criterias).object_list
+                models.Feed.objects.get(id=feed_id).title, feed_title )
+        except ObjectDoesNotExist:
+            raise Http404("no such feed") # no such feed
+        except ValueError: # id not numeric
+            raise Http404("non-numeric feed_id")
+    object_list = fjlib.get_page(request, site, page=1).object_list
 
     feed = feedclass( title=feed_title, link=site.url,
         description=site.description, feed_url=u'{0}/{1}'.format(site.url, '/feed/rss/') )
@@ -209,28 +213,28 @@ def _buildfeed(request, feedclass, view_data, **criterias):
     return response
 
 
-def rssfeed(request, **criterias):
+def rssfeed(request):
     'Generates the RSS2 feed.'
-    return buildfeed(request, feedgenerator.Rss201rev2Feed, **criterias)
+    return buildfeed(request, feedgenerator.Rss201rev2Feed)
 
-def atomfeed(request, **criterias):
+def atomfeed(request):
     'Generates the Atom 1.0 feed.'
-    return buildfeed(request, feedgenerator.Atom1Feed, **criterias)
+    return buildfeed(request, feedgenerator.Atom1Feed)
 
 
-def mainview(request, **criterias):
+def mainview(request):
     'View that handles all page requests.'
     view_data = initview(request)
-    wrap = lambda func: ft.partial(func, _view_data=view_data, **criterias)
+    wrap = lambda func: ft.partial(func, _view_data=view_data)
     return condition(
             etag_func=wrap(cache_etag),
             last_modified_func=wrap(cache_last_modified) )\
-        (_mainview)(request, view_data, **criterias)
+        (_mainview)(request, view_data)
 
-def _mainview(request, view_data, **criterias):
+def _mainview(request, view_data):
     response, site, cachekey = view_data
     if not response:
-        ctx = fjlib.page_context(request, site, **criterias)
+        ctx = fjlib.page_context(request, site)
         response = render(request, u'feedjack/{0}/post_list.html'.format(site.template), ctx)
         # per host caching, in case the cache middleware is enabled
         patch_vary_headers(response, ['Host'])

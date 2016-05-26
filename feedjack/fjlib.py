@@ -126,19 +126,14 @@ def get_posts_tags(subscribers, object_list, feed, tag_name):
 	return user_obj, tag_obj
 
 
-_since_formats = set(['%Y-%m-%d', '%Y-%m-%d %H:%M', '%d.%m.%Y'])
-_since_formats_vary = ('%Y', '%y'), ('%d', '%a'),\
-	('%d', '%A'), ('%m', '%b'), ('%m', '%B')
-_since_offsets = {
-	'yesterday': 1, 'week': 7, 'month': 30,
-	'10_days': 10, '30_days': 30 }
+def parse_since_date(since):
+		_since_formats = set(['%Y-%m-%d', '%Y-%m-%d %H:%M', '%d.%m.%Y'])
+		_since_formats_vary = ('%Y', '%y'), ('%d', '%a'),\
+			('%d', '%A'), ('%m', '%b'), ('%m', '%B')
+		_since_offsets = {
+			'yesterday': 1, 'week': 7, 'month': 30,
+			'10_days': 10, '30_days': 30 }
 
-def get_page(request, site, page=1, **criterias):
-	'Returns a paginator object and a requested page from it.'
-	global _since_formats_vary
-
-	if 'since' in criterias:
-		since = criterias['since']
 		if since in _since_offsets:
 			since = datetime.today() - timedelta(_since_offsets[since])
 		else:
@@ -151,18 +146,31 @@ def get_page(request, site, page=1, **criterias):
 					_since_formats.add(fmt)
 				_since_formats_vary = None # to avoid doing it again
 			for fmt in _since_formats:
-				try: since = datetime.strptime(since, fmt)
-				except ValueError: pass
-				else: break
-			else: raise Http404 # invalid format
+				try:
+					since = datetime.strptime(since, fmt)
+				except ValueError:
+					pass
+				else:
+					break
+			else:
+				return None # invalid format
 		try:
-			criterias['since'] = timezone.make_aware(
+			since = timezone.make_aware(
 				since, timezone.get_current_timezone() )
 		except (
 				timezone.pytz.exceptions.AmbiguousTimeError
 				if timezone.pytz else RuntimeError ):
 			# Since there's no "right" way here anyway...
 			criterias['since'] = since.replace(tzinfo=timezone)
+		return since
+
+def get_page(request, site, page=1, **criterias):
+	'Returns a paginator object and a requested page from it.'
+
+	if 'since' in criterias:
+		since = parse_since_date(criterias['since'])
+		if not since:
+			raise Http404("invalid since time")
 	order_force = criterias.pop('asc', None)
 
 	posts = models.Post.objects.filtered(site, **criterias)\

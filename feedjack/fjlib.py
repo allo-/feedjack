@@ -167,11 +167,15 @@ def parse_since_date(since):
 def get_page(request, site, page=1, **criterias):
 	'Returns a paginator object and a requested page from it.'
 
-	if 'since' in criterias:
-		since = parse_since_date(criterias['since'])
+	if 'since' in request.GET:
+		since = request.GET.get('since')
+		since = parse_since_date(since)
 		if not since:
 			raise Http404("invalid since time")
-	order_force = criterias.pop('asc', None)
+		criterias['since'] = since
+	order_force = request.GET.get('asc', None)
+	if order_force:
+		order_force = order_force[0] # GET['asc'] is a list
 
 	posts = models.Post.objects.filtered(site, **criterias)\
 		.sorted(site.order_posts_by, force=order_force)\

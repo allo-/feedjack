@@ -7,7 +7,7 @@ from feedjack import views
 import itertools as it, operator as op, functools as ft
 from types import StringTypes, NoneType
 
-specs = dict(feed=('feed', r'\d+'), tag=r'[^/]+', since=r'[^/]+', asc=None)
+specs = dict(feed=('feed', r'\d+'), tag=r'[^/]+')
 specs_deprecated = dict(user=('feed', r'\d+'), tag=r'[^/]+')
 
 urljoin = lambda pieces: '/'.join(it.imap(op.methodcaller('strip', '/'), pieces))

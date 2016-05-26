@@ -79,20 +79,6 @@ Insert here your google ad code ;)
     <a href="http://validator.w3.org/check/referer" title="This page validates as XHTML 1.1 Transitional"><img src="{{ media_url }}/img/xhtml.png" alt="XHTML Valid" width="80px" height="15px"/></a>
 </p>
 
-<h2>{% trans "Tag soup" %}</h2>
-<p id="cloud">
-{% for tag in tagcloud %}
-      <a
-      {% if user_id %}
-      href="{{ site.url }}/user/{{ user_id }}/tag/{{ tag.tagname|urlencode }}/"
-      {% else %}
-      href="{{ site.url }}/tag/{{ tag.tagname|urlencode }}/"
-      {% endif %}
-      title="{% blocktrans count tag.count as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %}"
-      class="cloud_{{ tag.weight }}">{{ tag.tagname }}</a>
-{% endfor %}
-</p>
-
 <h2>{% trans "Friends" %}</h2>
 <div class="suscribers">
 {% for feed in subscribers %}

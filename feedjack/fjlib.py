@@ -223,20 +223,13 @@ def page_context(request, site):
 	page = get_page(request, site, page=page)
 	subscribers = site.active_subscribers
 
-	if site.show_tagcloud and page.object_list:
-		from feedjack import fjcloud
-		# This will hit the DB once per page instead of once for every post in
-		#  a page. To take advantage of this the template designer must call
-		#  the qtags property in every item, instead of the default tags property.
-		user_obj, tag_obj = get_posts_tags(
-			subscribers, page.object_list, feed, tag )
-		tag_cloud = fjcloud.getcloud(site, feed and feed.id)
-	else:
-		tag_obj, tag_cloud = None, tuple()
-		try:
-			user_obj = models.Subscriber.objects\
-				.get(site=site, feed=feed) if feed else None
-		except ObjectDoesNotExist: raise Http404
+	# TODO: remove all remaining tag cloud stuff
+	tag_obj, tag_cloud = None, tuple()
+	try:
+		user_obj = models.Subscriber.objects\
+			.get(site=site, feed=feed) if feed else None
+	except ObjectDoesNotExist:
+		raise Http404
 
 	site_proc_tags = site.processing_tags.strip()
 	if site_proc_tags != 'none':
@@ -255,7 +248,6 @@ def page_context(request, site):
 		object_list = page.object_list,
 		subscribers = subscribers.select_related('feed'),
 		tag = tag_obj,
-		tagcloud = tag_cloud,
 
 		feed = feed,
 		url_suffix = ''.join((

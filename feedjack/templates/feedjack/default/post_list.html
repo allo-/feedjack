@@ -61,23 +61,6 @@
       <a href="{{ site.url }}/foaf/" title="FOAF"><img src="{{ media_url }}/img/button-foaf.png"/></a>
     </div>
 
-{% if user %}
-<div id="usertags">
-    <ul>
-    {% for tag in tagcloud %}
-      <li><a
-      {% if user_id %}
-      href="{{ site.url }}/user/{{ user_id }}/tag/{{ tag.tagname|urlencode }}/"
-      {% else %}
-      href="{{ site.url }}/tag/{{ tag.tagname|urlencode }}/"
-      {% endif %}
-      title="{% blocktrans count tag.count as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %}"
-      class="cloud_{{ tag.weight }}">{{ tag.tagname }}</a></li>
-    {% endfor %}
-    </ul>
-</div>
-{% endif %}
-
 <div id="content">
 
 {% for item in object_list %}
@@ -97,25 +80,9 @@
     {% ifnotequal item.subscriber.shortname "nobody" %}
     <span class="nick">{{ item.subscriber.shortname }}</span><br/>
     {% endifnotequal %}
-    {% if item.subscriber.get_cloud %}
-    <span class="url">
-      <a href="{{ item.feed.link }}">{{ item.feed.title }}</a> {% trans "is about" %} »
-    </span>
-    <div class="tags">
-      <ul>
-        {% for tag in item.subscriber.get_cloud %}
-        <li><a
-          href="{{ site.url }}/user/{{ item.subscriber.feed.id }}/tag/{{ tag.tagname|urlencode}}/"
-          title="{% blocktrans count tag.count as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %}"
-          class="cloud_{{ tag.weight }}">{{ tag.tagname }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% else %}
     <span class="url">
       <a href="{{ item.feed.link }}">{{ item.feed.title }}</a>
     </span>
-    {% endif %}
   </div>
   {% endifchanged %}
 
@@ -155,21 +122,6 @@
   {% blocktrans %}What people talk about{% endblocktrans %}
 {% endif %}
 </h4>
-
-<div id="tags">
-    <ul id="cloud">
-    {% for tag in tagcloud %}
-      <li><a
-      {% if user_id %}
-      href="{{ site.url }}/user/{{ user_id }}/tag/{{ tag.tagname|urlencode }}/"
-      {% else %}
-      href="{{ site.url }}/tag/{{ tag.tagname|urlencode }}/"
-      {% endif %}
-      title="{% blocktrans count tag.count as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %}"
-      class="cloud_{{ tag.weight }}">{{ tag.tagname }}</a></li>
-    {% endfor %}
-    </ul>
-</div>
 
 <h4>{% trans "Meta" %}</h4>
 <p>

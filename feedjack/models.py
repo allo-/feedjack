@@ -96,6 +96,7 @@ class Site(models.Model):
 			(SITE_ORDERING.created_day,
 				_('Day the post was first obtained (for nicer per-feed grouping).')) ),
 		default=SITE_ORDERING.modified )
+    # TODO: remove remaining tag cloud stuff
 	tagcloud_levels = models.PositiveIntegerField(_('tagcloud level'), default=5)
 	show_tagcloud = models.BooleanField(_('show tagcloud'), default=True)
 
@@ -878,10 +879,6 @@ class Subscriber(models.Model):
 		unique_together = ('site', 'feed'),
 
 	def __unicode__(self): return u'%s in %s' % (self.feed, self.site)
-
-	def get_cloud(self):
-		from feedjack import fjcloud
-		return fjcloud.getcloud(self.site, self.feed.id)
 
 	def save(self, *argz, **kwz):
 		if not self.name: self.name = self.feed.name

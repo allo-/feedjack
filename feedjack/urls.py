@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from feedjack import views
 
 
@@ -30,3 +30,5 @@ urlpatterns.append((r'^mark-post/(?P<post_id>[0-9]*)/(?P<mark>[A-Z])/$', views.m
 #urlpatterns = patterns('', *urlpatterns)
 # new django way. TODO: cleanup the creation of the urls
 urlpatterns = [url(*x) for x in urlpatterns]
+
+urlpatterns.append(url(r'^accounts/', include('registration.backends.simple.urls')))

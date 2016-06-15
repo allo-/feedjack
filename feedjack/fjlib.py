@@ -176,7 +176,7 @@ def get_page(request, site, page=1):
 		criterias['since'] = since
 	order_force = request.GET.get('asc', None)
 	if order_force:
-		order_force = order_force[0] # GET['asc'] is a list
+		order_force = "asc"
 
 	posts = models.Post.objects.filtered(site, **criterias)\
 		.sorted(site.order_posts_by, force=order_force)\

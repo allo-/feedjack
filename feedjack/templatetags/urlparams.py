@@ -1,4 +1,5 @@
 from django import template
+import urllib
 register = template.Library()
 
 @register.simple_tag
@@ -20,3 +21,7 @@ def urlparams(url_params, exclude):
         for value in values:
             result += "&"+key+"="+value
     return result
+
+@register.simple_tag
+def urlparams_quoted(url_params, exclude):
+    return urllib.quote(urlparams(url_params, exclude))

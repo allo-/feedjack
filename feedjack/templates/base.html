@@ -65,7 +65,7 @@
         <h1><a href="{{ site.url }}/">{{ site.name }}</a></h1>
 	{% trans "Last update" %}: <b>{{ last_modified|date:"l, d. F Y, G:i:s" }}</b>
     <br />
-    <a href="{% url 'auth_login' %}?next=/">Login</a>
+    <a href="{% url 'auth_login' %}?next=/%3F{% urlparams_quoted url_parameters "" %}">Login</a>
     </div>
 </div>
 

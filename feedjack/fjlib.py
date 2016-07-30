@@ -174,9 +174,11 @@ def get_page(request, site, page=1):
 		if not since:
 			raise Http404("invalid since time")
 		criterias['since'] = since
-	order_force = request.GET.get('asc', None)
-	if order_force:
+
+	if request.GET.get('asc', None) == "1":
 		order_force = "asc"
+	else:
+		order_force = None
 
 	posts = models.Post.objects.filtered(site, **criterias)\
 		.sorted(site.order_posts_by, force=order_force)\

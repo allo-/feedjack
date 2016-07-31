@@ -177,8 +177,10 @@ def get_page(request, site, page=1):
 
 	if request.GET.get('asc', None) == "1":
 		order_force = "asc"
+		criterias['asc'] = True
 	else:
 		order_force = None
+		criterias['asc'] = False
 
 	posts = models.Post.objects.filtered(site, **criterias)\
 		.sorted(site.order_posts_by, force=order_force)\

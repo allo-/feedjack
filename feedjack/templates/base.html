@@ -13,6 +13,10 @@
 	<meta name="generator" content="Feedjack">
 	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8">
     <meta name="referrer" content="never">
+    {% comment %}
+        TODO: use self hosted jquery with a django-jquery package
+    {% endcomment %}
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="/static/feedjack/plain/style.css" /> <!-- TODO: use { % static % } -->
         <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="{{ site.url }}/feed/rss/" />
         {% block extrastyle %}{% endblock %}
@@ -55,6 +59,12 @@
 
             document.getElementById("mark-post-"+post_id+"-"+mark).classList.add("active");
         }
+        function loadPage(url) {
+            jQuery("#content").load(url + " #content > *", function(){
+                $("html, body").animate({scrollTop: 0}, "slow");
+                window.history.pushState(false, "", url);
+            });
+        }
     </script>
 
 </head>
@@ -70,7 +80,7 @@
 </div>
 
 {% if object_list %}
-<div id="paginate">
+<div class="paginate">
     {% if has_previous %}
         <div class="pageitem"><a href="?page={{ previous }}{% urlparams url_parameters "page" %}">&lt;&lt;</a></div>
     {% endif %}
@@ -105,7 +115,7 @@
 
 <!-- TODO: redundant code with top pagination. use an include -->
 {% if object_list %}
-<div id="paginate">
+<div class="paginate">
 {% if has_previous %}
 <div class="pageitem"><a href="?page={{ previous }}{% urlparams url_parameters "page" %}">&lt;&lt;</a></div>
 {% endif %}

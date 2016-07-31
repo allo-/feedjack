@@ -676,11 +676,15 @@ class PostQuerySet(models.query.QuerySet):
 			params.extend((val, val, float(1 - threshold)))
 		return self.extra(where=funcs, params=params)
 
-	def with_criterias(self, site, feed=None, tag=None, since=None):
+	def with_criterias(self, site, feed=None, tag=None, since=None, asc=True):
 		self = self.filter(feed__subscriber__site=site)
 		if feed is not None: self = self.filter(feed=feed)
 		if tag: self = self.filter(tags__name=tag)
-		if since: self = self.filter(date_modified__gt=since)
+		if since:
+			if asc:
+				self = self.filter(date_modified__gt=since)
+			else:
+				self = self.filter(date_modified__lt=since)
 		return self
 
 	def sorted(self, site_ordering_id, force=None):

@@ -37,7 +37,6 @@
     </div>
   </div>
   <br />
-  <a href="?since={{ item.date_modified|date:"Y-m-d H:i" }}&asc=1{% urlparams url_parameters "since&asc" %}" style="float: right">Later Posts</a>
   {% if request.user.is_authenticated %}
   <table class="mark-post">
     <tr>
@@ -48,6 +47,13 @@
       <td id="mark-post-{{ item.id }}-I" class="I{% if item.mark == "I" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "I");event.preventDefault();'>Important</a></td>
     </tr>
   </table>
+  {% endif %}
+  {% if forloop.last %}
+      <div class="paginate">
+      <div class="pageitem">
+          <a href="?since={{ item.date_modified|date:"Y-m-d H:i"|iriencode }}{% urlparams url_parameters "since" %}")" onclick='loadPage("?since={{ item.date_modified|date:"Y-m-d H:i"|iriencode }}{% urlparams url_parameters "since" %}");event.preventDefault()'>Next</a>
+      </div>
+      </div>
   {% endif %}
   </div>
 {% endfor %}

@@ -99,56 +99,6 @@
 
 <div id="content">
 {% block content %}
-
-{% load html %}
-{% for item in object_list %}
-
-  {% ifchanged %}
-  <div class="date">{{ item.date_modified|date:"j. F Y" }}</div>
-  {% endifchanged %}
-
-  {% ifchanged %}
-  <div class="avatar"> <a href="{{ item.feed.link }}">{{ item.feed.title }}</a></div>
-  <!-- {{ item.date_modified|date:"j. F Y" }} -->
-  {% else %}
-  <div class="sep"></div>
-  {% endifchanged %}
-
-
-  <div class="post">
-  <div class="post-title">» <a href="{{ item.link }}" onmousedown='if(document.getElementById("mark-post-{{ item.id }}-U").classList.contains("active")){mark_post({{ item.id}}, "R")}'>{% if item.title %}{{ item.title|safe }}{% else %}{{ item.subscriber.name }}{% endif %}</a></div>
-  <div class="post-content">
-    <p>{{ item.content|prettyhtml|safe }}</p>
-    <div class="post-meta">
-      <a href="{{ item.link }}">
-      {% if item.author %}{% blocktrans with item.author as author %}by {{ author }} at{% endblocktrans %}{% endif %}
-      {{ item.date_modified|date:"H:i" }}</a>
-      {% for tag in item.qtags %}
-          {% if forloop.first %}{% trans "under" %}{% endif %}
-          <a href="{{ site.url }}/tag/{{ tag.name }}">{{ tag.name }}</a>
-          {% if not forloop.last %}, {% endif %}
-      {% endfor %}
-      {% if item.comments %}
-        <a href="{{ item.comments }}">({% trans "Comments" %})</a>
-      {% endif %}
-    </div>
-  </div>
-  <br />
-  <a href="?since={{ item.date_modified|date:"Y-m-d H:i" }}&asc=1{% urlparams url_parameters "since&asc" %}" style="float: right">Later Posts</a>
-  {% if request.user.is_authenticated %}
-  <table class="mark-post">
-    <tr>
-      <td id="mark-post-{{ item.id }}-U" class="U{% if item.mark == "U" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "U");event.preventDefault();'>Unread</a></td>
-      <td id="mark-post-{{ item.id }}-R" class="R{% if item.mark == "R" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "R");event.preventDefault();'>Read</a></td>
-      <td id="mark-post-{{ item.id }}-L" class="L{% if item.mark == "L" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "L");event.preventDefault();'>Read Later</a></td>
-      <td id="mark-post-{{ item.id }}-F" class="F{% if item.mark == "F" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "F");event.preventDefault();'>Favorite</a></td>
-      <td id="mark-post-{{ item.id }}-I" class="I{% if item.mark == "I" %} active{% endif %}"><a href="#" onclick='mark_post({{ item.id}}, "I");event.preventDefault();'>Important</a></td>
-    </tr>
-  </table>
-  {% endif %}
-  </div>
-{% endfor %}
-
 {% endblock content %}
 </div>
 

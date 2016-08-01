@@ -72,6 +72,8 @@ Enabling app in a Django project
 
 * First of all, 'feedjack' app must be enabled in settings.py under `INSTALLED_APPS`_.
 
+* Add ``django.contrib.sites`` and ``registration`` to INSTALLED_APPS
+
 * Running ``./manage.py migrate`` (`"migrate" command`_, supersedes "syncdb" in
   Django-1.7+) from the command line should then populate database (whichever is
   configured in the same file) with feedjack-specific schema.
@@ -149,6 +151,8 @@ Requirements
 
 * `Django 1.8+ <http://djangoproject.com>`__
 
+* ``django-registration-redux``
+
 * `feedparser 4.1+ <https://code.google.com/p/feedparser/>`__
 
 * (optional, recommended) `pytz <http://pythonhosted.org/pytz/>`__ -
@@ -211,7 +215,9 @@ The first thing you want to do is to add a Site.
 To do this, open Django admin interface and create your first planet.  You must
 use a valid address in the URL field, since it will be used to identify the
 current planet when there are multiple planets in the same instance and to
-generate all the links.
+generate all the links. Further you need to assign it to a django Site,
+which will be used to find the correct feedjack site based on ``SITE_ID`` or URL or
+any thirdparty modules providing get_current_site.
 
 Then you should add Subscribers to your first planet. A Subscriber is a relation
 between a Feed and a Site, so when you add your first Subscriber, you should

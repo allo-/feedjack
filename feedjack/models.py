@@ -9,6 +9,7 @@ from django.utils.encoding import smart_unicode
 from django.utils import timezone
 from django.dispatch import Signal
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site as DjangoSite
 
 from feedjack import fjcache
 
@@ -83,6 +84,7 @@ class Site(models.Model):
 
 	objects = Sites()
 
+	django_site = models.ForeignKey(DjangoSite)
 	name = models.CharField(_('name'), max_length=100)
 	url = models.CharField( _('url'),
 		max_length=100, unique=True,

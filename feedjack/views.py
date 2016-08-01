@@ -157,16 +157,17 @@ def opml(request):
     return blogroll(request, 'opml')
 
 
-def buildfeed(request, feedclass):
-    'View that handles the feeds.'
-    view_data = initview(request)
-    wrap = lambda func: ft.partial(func, _view_data=view_data)
-    return condition(
-            etag_func=wrap(cache_etag),
-            last_modified_func=wrap(cache_last_modified) )\
-        (_buildfeed)(request, feedclass, view_data)
+def viewdata_decorator(view):
+    'View that handles all page requests.'
+    def inner(request, **kwargs):
+        view_data = initview(request)
+        wrap = lambda func: ft.partial(func, _view_data=view_data)
+        return condition(etag_func=wrap(cache_etag), last_modified_func=wrap(cache_last_modified))(view)(request=request, view_data=view_data, **kwargs)
+    return inner
 
-def _buildfeed(request, feedclass, view_data):
+
+@viewdata_decorator
+def buildfeed(request, feedclass, view_data):
     # TODO: quite a mess, can't it be handled with a default feed-views?
     response, site, cachekey = view_data
     if response: return response[0]
@@ -215,23 +216,14 @@ def _buildfeed(request, feedclass, view_data):
 
 def rssfeed(request):
     'Generates the RSS2 feed.'
-    return buildfeed(request, feedgenerator.Rss201rev2Feed)
+    return buildfeed(request=request, feedclass=feedgenerator.Rss201rev2Feed)
 
 def atomfeed(request):
     'Generates the Atom 1.0 feed.'
-    return buildfeed(request, feedgenerator.Atom1Feed)
+    return buildfeed(request=request, feedclass=feedgenerator.Atom1Feed)
 
-
-def mainview(request):
-    'View that handles all page requests.'
-    view_data = initview(request)
-    wrap = lambda func: ft.partial(func, _view_data=view_data)
-    return condition(
-            etag_func=wrap(cache_etag),
-            last_modified_func=wrap(cache_last_modified) )\
-        (_mainview)(request, view_data)
-
-def _mainview(request, view_data):
+@viewdata_decorator
+def mainview(request, view_data):
     response, site, cachekey = view_data
     if not response:
         ctx = fjlib.page_context(request, site)

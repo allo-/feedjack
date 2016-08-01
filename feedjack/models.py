@@ -60,8 +60,16 @@ class Link(models.Model):
 
 
 
-SITE_ORDERING = namedtuple( 'SiteOrdering',
-	'modified created created_day' )(*xrange(1, 4))
+SITE_ORDERING = {
+    'date_modified': 1,
+    'date_created': 2,
+    'created_day': 3,
+}
+SITE_ORDERING_REVERSE = {
+    1: 'date_modified',
+    2: 'date_created',
+    3: 'created_day',
+}
 
 
 class Sites(models.Manager):
@@ -91,11 +99,14 @@ class Site(models.Model):
 	posts_per_page = models.PositiveIntegerField(_('posts per page'), default=20)
 	order_posts_by = models.PositiveSmallIntegerField(_('order posts by'),
 		choices=(
-			(SITE_ORDERING.modified, _('Time the post was published.')),
-			(SITE_ORDERING.created, _('Time the post was first obtained.')),
-			(SITE_ORDERING.created_day,
-				_('Day the post was first obtained (for nicer per-feed grouping).')) ),
-		default=SITE_ORDERING.modified )
+			(SITE_ORDERING['date_modified'],
+                _('Time the post was published.')),
+			(SITE_ORDERING['date_created'],
+                _('Time the post was first obtained.')),
+			(SITE_ORDERING['created_day'],
+                _('Day the post was first obtained (for nicer per-feed grouping).')) ),
+		    default=SITE_ORDERING['date_modified']
+        )
     # TODO: remove remaining tag cloud stuff
 	tagcloud_levels = models.PositiveIntegerField(_('tagcloud level'), default=5)
 	show_tagcloud = models.BooleanField(_('show tagcloud'), default=True)
@@ -688,9 +699,11 @@ class PostQuerySet(models.query.QuerySet):
 		return self
 
 	def sorted(self, site_ordering_id, force=None):
-		prime = Post._get_ordering_attribute(site_ordering_id)
-		if site_ordering_id == SITE_ORDERING.created_day:
+		prime = SITE_ORDERING_REVERSE[site_ordering_id]
+		if site_ordering_id == SITE_ORDERING['created_day']:
 			# Requires more handling than just raw attribute name
+            # TODO: use aggregation.
+            # TODO: Is this ordering even useful? maybe fallback to created for old entries
 			self = self.extra(dict(
 				date_created_day="date_trunc('day', {0})".format(prime) ))
 			prime = '-date_created_day'
@@ -770,18 +783,8 @@ class Post(models.Model):
 		unique_together = ('feed', 'guid'),
 
 
-	@staticmethod
-	def _get_ordering_attribute(site_ordering_id):
-		# Abstracts SITE_ORDERING/Post relationship somewhat,
-		#  but created_day requires special handling while sorting entries anyway
-		if site_ordering_id == SITE_ORDERING.modified: return 'date_modified'
-		elif site_ordering_id == SITE_ORDERING.created: return 'date_created'
-		elif site_ordering_id == SITE_ORDERING.created_day: return 'date_created'
-		else: raise ValueError('Unknown ordering method id: {0}'.format(site_ordering_id))
-
 	def date_on_site(self, site):
-		return getattr(self, self._get_ordering_attribute(site.order_posts_by))
-
+		return getattr(self, SITE_ORDERING_REVERSE[site.order_posts_by])
 
 	def _filtering_result(self, by_or):
 		return self.filtering_results.filter(

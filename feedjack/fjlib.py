@@ -69,7 +69,8 @@ def get_extra_context(site, ctx):
 	'Returns extra data useful to the templates.'
 	# XXX: clean this up from obsolete stuff
 	ctx['site'] = site
-	ctx['feeds'] = feeds = site.active_feeds.order_by('name')
+	feeds = site.active_feeds.order_by('name')
+	ctx['feeds'] = feeds
 
 	def get_mod_chk(k):
 		mod, chk = (

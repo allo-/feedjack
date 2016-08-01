@@ -70,21 +70,18 @@ def initview(request, response_cache=True):
     cachekey = u'{0}?{1}'.format(*it.imap(smart_unicode, (path_info, query_string)))
     hostdict = fjcache.hostcache_get() or dict()
 
-    site_id = hostdict[url] if url in hostdict else None
-    if site_id and response_cache:
-        response = fjcache.cache_get(site_id, cachekey)
-        if response: return response, None, cachekey
-
-    if site_id:
+    site_id = hostdict.get(url, None)
+    if site_id is not None:
+        if response_cache:
+            response = fjcache.cache_get(site_id, cachekey)
+            if response:
+                return response, None, cachekey
         site = models.Site.objects.get(pk=site_id)
     else: # match site from all of them
-        sites = list(models.Site.objects.all())
+        sites = models.Site.objects.all()
 
-        if not sites:
-            # Somebody is requesting something, but the user
-            #  didn't create a site yet. Creating a default one...
+        if sites.count() == 0: # no sites available, create a default one
             site = create_default_site()
-
         else:
             # Select the most matching site possible,
             #  preferring "default" when everything else is equal

@@ -156,6 +156,8 @@
 </div>
 </div>
 
+{% comment %}
+<!-- TODO: as fancy date parsing is removed, the date parameters for the urls need to be calculated in views.py -->
 <div class="groupname">new posts</div>
 <div class="group">
     <a href="?since=yesterday&asc=0{% urlparams url_parameters "since&asc" %}">since yesterday</a>
@@ -173,6 +175,7 @@
     <a href="?since={% now "Y-m-d H:i" %}&asc=0{% urlparams url_parameters "since&asc" %}" title="open this now and refresh it later to see which posts are new">since NOW</a>
     <a href="?since={% now "Y-m-d H:i" %}&asc=1{% urlparams url_parameters "since&asc" %}" %}/">(older posts first)</a>
 </div>
+{% endcomment %}
 {% if request.user.is_authenticated %}
     <div class="groupname">Admin</div>
     <div class="group">

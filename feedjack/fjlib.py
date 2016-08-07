@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import connection
 from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
 from django.utils.encoding import smart_unicode, force_unicode
@@ -126,58 +126,15 @@ def get_posts_tags(subscribers, object_list, feed, tag_name):
 
 	return user_obj, tag_obj
 
-
-def parse_since_date(since):
-		_since_formats = set(['%Y-%m-%d', '%Y-%m-%d %H:%M', '%d.%m.%Y'])
-		_since_formats_vary = ('%Y', '%y'), ('%d', '%a'),\
-			('%d', '%A'), ('%m', '%b'), ('%m', '%B')
-		_since_offsets = {
-			'yesterday': 1, 'week': 7, 'month': 30,
-			'10_days': 10, '30_days': 30 }
-
-		if since in _since_offsets:
-			since = datetime.today() - timedelta(_since_offsets[since])
-		else:
-			if _since_formats_vary:
-				for fmt, substs in it.product( list(_since_formats),
-						it.chain.from_iterable(
-							it.combinations(_since_formats_vary, n)
-							for n in xrange(1, len(_since_formats_vary)) ) ):
-					for src, dst in substs: fmt = fmt.replace(src, dst)
-					_since_formats.add(fmt)
-				_since_formats_vary = None # to avoid doing it again
-			for fmt in _since_formats:
-				try:
-					since = datetime.strptime(since, fmt)
-				except ValueError:
-					pass
-				else:
-					break
-			else:
-				return None # invalid format
-		try:
-			since = timezone.make_aware(
-				since, timezone.get_current_timezone() )
-		except (
-				timezone.pytz.exceptions.AmbiguousTimeError
-				if timezone.pytz else RuntimeError ):
-			# Since there's no "right" way here anyway...
-			since = since.replace(tzinfo=timezone)
-		return since
-
 def get_page(request, site, page=1):
 	'Returns a paginator object and a requested page from it.'
 
 	criterias = {}
 	if 'since' in request.GET:
-		since = parse_since_date(request.GET.get('since'))
-		if not since:
-			raise Http404("invalid since time")
+		since = request.GET.get('since')
 		criterias['since'] = since
 	if 'until' in request.GET:
-		until = parse_since_date(request.GET.get('until'))
-		if not since:
-			raise Http404("invalid until time")
+		until = request.GET.get('until')
 		criterias['until'] = until
 
 	if request.GET.get('asc', None) == "1":
@@ -187,9 +144,12 @@ def get_page(request, site, page=1):
 		order_force = None
 		criterias['asc'] = False
 
-	posts = models.Post.objects.filtered(site, **criterias)\
-		.sorted(site.order_posts_by, force=order_force)\
-		.select_related('feed')
+	try:
+		posts = models.Post.objects.filtered(site, **criterias)\
+			.sorted(site.order_posts_by, force=order_force)\
+			.select_related('feed')
+	except ValidationError:
+		raise Http404('Validation Error (probably malformed since/until date)')
 
 	# filter by PostMark, like ?marked=U,I,L or ?marked=R
 	mark_filter = request.GET.get("marked", "")

@@ -83,15 +83,16 @@ class Site(models.Model):
 	objects = Sites()
 
 	django_site = models.ForeignKey(DjangoSite)
-	name = models.CharField(_('name'), max_length=100)
+	name = models.CharField(_('name'), max_length=100, default="Default Feedjack Site/Planet")
 	url = models.CharField( _('url'),
 		max_length=100, unique=True,
 		help_text=u'{0}: {1}, {2}'.format(
 		smart_unicode(_('Example')),
 		u'http://www.planetexample.com',
-		u'http://www.planetexample.com:8000/foo' ) )
-	title = models.CharField(_('title'), max_length=200)
-	description = models.TextField(_('description'), blank=True)
+		u'http://www.planetexample.com:8000/foo' ), default="" )
+	title = models.CharField(_('title'), max_length=200, default="Feedjack Site Title")
+	description = models.TextField(_('description'), blank=True, default='Feedjack Site Description.'
+		' Please change this in the admin interface.')
 	welcome = models.TextField(_('welcome'), null=True, blank=True)
 	greets = models.TextField(_('greets'), null=True, blank=True)
 
@@ -118,7 +119,7 @@ class Site(models.Model):
 	template = models.CharField( _('template'),
 		max_length=100, null=True, blank=True,
 		help_text=_( 'This template must be a directory in your feedjack'
-			' templates directory. Leave blank to use the default template.' ) )
+			' templates directory. Leave blank to use the default template.' ), default="plain" )
 
 	processing_tags = models.CharField( _('processing tags'),
 		blank=True, max_length=256, help_text=_(

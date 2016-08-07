@@ -3,6 +3,7 @@
 
 from django.utils import feedgenerator
 from django.shortcuts import render, get_object_or_404
+from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse, Http404, HttpResponsePermanentRedirect
 from django.utils.cache import patch_vary_headers
 from django.template import Context, loader
@@ -41,17 +42,6 @@ def cache_last_modified(request, *argz, **kwz):
     if not response: return None
     return response[1]
 
-def create_default_site():
-    site = models.Site(
-        name='Default Feedjack Site/Planet',
-        url=request.build_absolute_uri(request.path),
-        title='Feedjack Site Title',
-        description='Feedjack Site Description.'
-            ' Please change this in the admin interface.',
-        template='bootstrap' )
-    site.save()
-    return site
-
 def initview(request, response_cache=True):
     '''Retrieves the basic data needed by all feeds (host, feeds, etc)
         Returns a tuple of:
@@ -80,29 +70,13 @@ def initview(request, response_cache=True):
     else: # match site from all of them
         sites = models.Site.objects.all()
 
+        django_site = get_current_site(request)
         if sites.count() == 0: # no sites available, create a default one
-            site = create_default_site()
+            site = models.Site(django_site=django_site)
+            site.save()
         else:
-            # Select the most matching site possible,
-            #  preferring "default" when everything else is equal
-            results = defaultdict(list)
-            for site in sites:
-                relevance, site_url = 0, urlparse(site.url)
-                if site_url.netloc == http_host:
-                    relevance += 10 # host matches
-                if path_info.startswith(site_url.path.strip('/')):
-                    relevance += 10 # path matches
-                if site.default_site:
-                    relevance += 5 # marked as "default"
-                results[relevance].append((site_url, site))
-            for relevance in sorted(results, reverse=True):
-                try:
-                    site_url, site = results[relevance][0]
-                except IndexError:
-                    pass
-                else:
-                    break
-            if site_url.netloc != http_host: # redirect to proper site hostname
+            site = get_object_or_404(models.Site, django_site=django_site)
+            if urlparse(site.url).netloc != http_host: # redirect to proper site hostname
                 response = HttpResponsePermanentRedirect(
                     'http://{0}/{1}{2}'.format( site_url.netloc, path_info,
                         '?{0}'.format(query_string) if query_string.strip() else '') )

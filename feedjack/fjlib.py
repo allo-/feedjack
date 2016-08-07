@@ -128,6 +128,7 @@ def get_page(request, site, page=1):
 	if 'until' in request.GET:
 		until = request.GET.get('until')
 		criterias['until'] = until
+	group = request.GET.get("group", None)
 
 	asc = False
 	if request.GET.get('asc', None) == "1":
@@ -144,6 +145,13 @@ def get_page(request, site, page=1):
 		posts = models.Post.objects.filtered(site, **criterias)\
 			.order_by(sorting, 'feed', '-date_created')\
 			.select_related('feed')
+		if group:
+			# get all subscribers for the current site, which are in the group
+			try:
+				group_subscribers = models.Subscriber.objects.filter(site=site, group=group)
+				posts = posts.filter(feed__subscriber__in=group_subscribers)
+			except ValueError:
+				raise Http404("Malformed group parameter")
 	except ValidationError:
 		raise Http404('Validation Error (probably malformed since/until date)')
 

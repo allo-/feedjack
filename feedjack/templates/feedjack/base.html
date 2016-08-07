@@ -143,7 +143,7 @@
 <div class="post-content">
 
 {% for group in groups %}
-    <div class="groupname">{{ group.name }}</div>
+    <div class="groupname"><a href="?{% urlparams url_parameters "group" %}&group={{group.id}}">{{ group.name }}</a></div>
     <div class="group">
     {% for feed in group.subscriber_set.all %}
         <span><a class="nombre" href="{{ site.url }}/user/{{ feed.feed.id }}" title="{{ feed.feed.title }}">{{ feed.name }}</a> (<a href="{{ feed.feed.link }}">{% trans "website" %}</a>, <a href="{{ feed.feed.feed_url }}" {% if feed.feed.last_modified %}title="{% blocktrans with feed.feed.last_modified as last_modified %}feed (last modified: {{ last_modified }}){% endblocktrans %}"{% else %}title="{% trans "feed" %}"{% endif %}>{% trans "feed" %}</a>)</span>

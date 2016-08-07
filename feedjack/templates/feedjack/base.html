@@ -157,11 +157,11 @@
 <div class="post-content">
 
 {% for group in groups %}
-    <div class="groupname"><a href="?{% urlparams url_parameters "group" %}&group={{group.id}}">{{ group.name }}</a></div>
+    <div class="groupname"><a href="?group={{group.id}}{% urlparams url_parameters "group" %}">{{ group.name }}</a></div>
     <div class="group">
     {% for subscriber in group.subscriber_set.all %}
     <span>
-        <a class="nombre" href="?{% urlparams url_parameters "subscriber group" %}&subscriber={{ subscriber.id }}" title="{{ subscriber.feed.title }}">
+        <a class="nombre" href="?subscriber={{ subscriber.id }}{% urlparams url_parameters "subscriber group" %}" title="{{ subscriber.feed.title }}">
             {{ subscriber.name }}
         </a>
         (<a href="{{ subscriber.feed.link }}">{% trans "website" %}</a>,
@@ -177,7 +177,7 @@
 <div class="group">
 {% for subscriber in ungrouped %}
     <span>
-        <a class="nombre" href="?{% urlparams url_parameters "subscriber group" %}&subscriber={{ subscriber.id }}" title="{{ subscriber.feed.title }}">
+        <a class="nombre" href="?subscriber={{ subscriber.id }}{% urlparams url_parameters "subscriber group" %}" title="{{ subscriber.feed.title }}">
             {{ subscriber.name }}
         </a>
         (<a href="{{ subscriber.feed.link }}">{% trans "website" %}</a>,

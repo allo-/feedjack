@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import connection
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
@@ -72,16 +72,8 @@ def get_extra_context(site, ctx):
 	feeds = site.active_feeds.order_by('name')
 	ctx['feeds'] = feeds
 
-	def get_mod_chk(k):
-		mod, chk = (
-			(max(vals) if vals else None) for vals in (
-				filter(None, it.imap(op.attrgetter(k), feeds))
-				for k in ['last_modified', 'last_checked'] ) )
-		chk = chk or datetime(1970, 1, 1, 0, 0, 0, 0, timezone.utc)
-		ctx['last_modified'], ctx['last_checked'] = mod or chk, chk
-		return ctx[k]
-	for k in 'last_modified', 'last_checked':
-		ctx[k] = lambda: get_mod_chk(k)
+	ctx['last_checked'] = models.Feed.objects.aggregate(last_checked=Max('last_checked'))['last_checked']
+	ctx['last_modified'] = models.Feed.objects.aggregate(last_modified=Max('last_modified'))['last_modified']
 
 	# media_url is set here for historical reasons,
 	#  use static_url or STATIC_URL (from django context) in any new templates.

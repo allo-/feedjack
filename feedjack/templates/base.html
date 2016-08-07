@@ -73,8 +73,11 @@
 <div id="head">
     <div id="logo">
         <h1><a href="{{ site.url }}/">{{ site.name }}</a></h1>
-	{% trans "Last update" %}: <b>{{ last_modified|date:"l, d. F Y, G:i:s" }}</b>
+    <div style="float: right">
+	{% trans "Last update" %}: <b>{{ last_checked|date:"l, d. F Y, G:i:s" }}</b>
     <br />
+	{% trans "Last modified" %}: <b>{{ last_modified|date:"l, d. F Y, G:i:s" }}</b>
+    </div>
     <a href="{% url 'auth_login' %}?next=/%3F{% urlparams_quoted url_parameters "" %}">Login</a>
     </div>
 </div>

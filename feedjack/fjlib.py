@@ -170,11 +170,15 @@ def get_page(request, site, page=1):
 
 	criterias = {}
 	if 'since' in request.GET:
-		since = request.GET.get('since')
-		since = parse_since_date(since)
+		since = parse_since_date(request.GET.get('since'))
 		if not since:
 			raise Http404("invalid since time")
 		criterias['since'] = since
+	if 'until' in request.GET:
+		until = parse_since_date(request.GET.get('until'))
+		if not since:
+			raise Http404("invalid until time")
+		criterias['until'] = until
 
 	if request.GET.get('asc', None) == "1":
 		order_force = "asc"

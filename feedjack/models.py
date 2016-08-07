@@ -62,14 +62,12 @@ class Link(models.Model):
 
 
 SITE_ORDERING = {
-    'date_modified': 1,
-    'date_created': 2,
-    'created_day': 3,
+	'date_modified': 1,
+	'date_created': 2,
 }
 SITE_ORDERING_REVERSE = {
-    1: 'date_modified',
-    2: 'date_created',
-    3: 'created_day',
+	1: 'date_modified',
+	2: 'date_created',
 }
 
 
@@ -102,14 +100,13 @@ class Site(models.Model):
 	order_posts_by = models.PositiveSmallIntegerField(_('order posts by'),
 		choices=(
 			(SITE_ORDERING['date_modified'],
-                _('Time the post was published.')),
+				_('Time the post was published.')),
 			(SITE_ORDERING['date_created'],
-                _('Time the post was first obtained.')),
-			(SITE_ORDERING['created_day'],
-                _('Day the post was first obtained (for nicer per-feed grouping).')) ),
-		    default=SITE_ORDERING['date_modified']
-        )
-    # TODO: remove remaining tag cloud stuff
+				_('Time the post was first obtained.')),
+		),
+		default=SITE_ORDERING['date_modified']
+	)
+	# TODO: remove remaining tag cloud stuff
 	tagcloud_levels = models.PositiveIntegerField(_('tagcloud level'), default=5)
 	show_tagcloud = models.BooleanField(_('show tagcloud'), default=True)
 
@@ -704,22 +701,6 @@ class PostQuerySet(models.query.QuerySet):
 			else:
 				self = self.filter(date_modified__gt=until)
 		return self
-
-	def sorted(self, site_ordering_id, force=None):
-		prime = SITE_ORDERING_REVERSE[site_ordering_id]
-		if site_ordering_id == SITE_ORDERING['created_day']:
-			# Requires more handling than just raw attribute name
-            # TODO: use aggregation.
-            # TODO: Is this ordering even useful? maybe fallback to created for old entries
-			self = self.extra(dict(
-				date_created_day="date_trunc('day', {0})".format(prime) ))
-			prime = '-date_created_day'
-		else: prime = '-{0}'.format(prime)
-
-		if force == 'asc': prime = prime.lstrip('-')
-		elif force == 'desc' and prime[0] != '-': prime = '-{0}'.format(prime)
-
-		return self.order_by(prime, 'feed', '-date_created')
 
 
 class Posts(models.Manager):

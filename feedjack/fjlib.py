@@ -137,16 +137,20 @@ def get_page(request, site, page=1):
 		until = request.GET.get('until')
 		criterias['until'] = until
 
+	asc = False
 	if request.GET.get('asc', None) == "1":
-		order_force = "asc"
+		asc = True
 		criterias['asc'] = True
 	else:
-		order_force = None
 		criterias['asc'] = False
 
 	try:
+		sorting = models.SITE_ORDERING_REVERSE[site.order_posts_by]
+		if not asc:
+		   sorting = "-" + sorting
+
 		posts = models.Post.objects.filtered(site, **criterias)\
-			.sorted(site.order_posts_by, force=order_force)\
+			.order_by(sorting, 'feed', '-date_created')\
 			.select_related('feed')
 	except ValidationError:
 		raise Http404('Validation Error (probably malformed since/until date)')

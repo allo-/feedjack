@@ -11,6 +11,7 @@ from django.http import Http404
 from django.utils.encoding import smart_unicode, force_unicode
 from django.utils.html import escape
 from django.utils import timezone
+from django.contrib.sites.shortcuts import get_current_site
 
 from feedjack import models
 
@@ -65,11 +66,13 @@ else:
 		return lxml_tostring(doc)
 
 
-def get_extra_context(site, ctx):
+def get_extra_context(request):
 	'Returns extra data useful to the templates.'
 	# XXX: clean this up from obsolete stuff
-	ctx['site'] = site
-	feeds = site.active_feeds.order_by('name')
+	feedjack_site = models.Site.objects.get(django_site=get_current_site(request))
+	ctx = {}
+	ctx['site'] = feedjack_site
+	feeds = feedjack_site.active_feeds.order_by('name')
 	ctx['feeds'] = feeds
 
 	ctx['last_checked'] = models.Feed.objects.aggregate(last_checked=Max('last_checked'))['last_checked']
@@ -78,9 +81,11 @@ def get_extra_context(site, ctx):
 	# media_url is set here for historical reasons,
 	#  use static_url or STATIC_URL (from django context) in any new templates.
 	ctx['media_url'] = ctx['static_url'] =\
-		'{}feedjack/{}'.format(settings.STATIC_URL, site.template)
-	ctx['groups'] = models.Group.objects.filter(subscriber__site=site).distinct()
-	ctx['ungrouped'] = models.Subscriber.objects.filter(group=None, site=site)
+		'{}feedjack/{}'.format(settings.STATIC_URL, feedjack_site.template)
+	ctx['groups'] = models.Group.objects.filter(subscriber__site=feedjack_site).distinct()
+	ctx['ungrouped'] = models.Subscriber.objects.filter(group=None, site=feedjack_site)
+
+	return ctx
 
 
 def get_posts_tags(subscribers, object_list, feed, tag_name):
@@ -189,7 +194,8 @@ def get_page(request, site, page=1):
 	return paginator_page
 
 
-def page_context(request, site):
+def page_context(request):
+	site = models.Site.objects.get(django_site=get_current_site(request))
 	'Returns the context dictionary for a page view.'
 	try: page = int(request.GET.get('page', 1))
 	except ValueError: page = 1
@@ -260,6 +266,8 @@ def page_context(request, site):
 		url_parameters = request.GET
 	)
 
-	get_extra_context(site, ctx)
+	ctx2 = get_extra_context(request)
+	for key in ctx2:
+		ctx[key] = ctx2[key]
 
 	return ctx

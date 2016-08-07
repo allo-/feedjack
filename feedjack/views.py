@@ -109,8 +109,7 @@ def blogroll(request, btype):
     if response: return response[0]
 
     template = loader.get_template('feedjack/{0}.xml'.format(btype))
-    ctx = dict()
-    fjlib.get_extra_context(site, ctx)
+    ctx = fjlib.get_extra_context(request)
     ctx = Context(ctx)
     response = HttpResponse(
         template.render(ctx), content_type='text/xml; charset=utf-8' )
@@ -197,7 +196,7 @@ def atomfeed(request):
 def mainview(request, view_data):
     response, site, cachekey = view_data
     if not response:
-        ctx = fjlib.page_context(request, site)
+        ctx = fjlib.page_context(request)
         response = render(request, u'feedjack/{0}/post_list.html'.format(site.template), ctx)
         # per host caching, in case the cache middleware is enabled
         patch_vary_headers(response, ['Host'])

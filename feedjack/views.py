@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.encoding import smart_unicode
 from django.views.decorators.http import condition
+from decorators import login_required_get_parameters
 
 from feedjack import models, fjlib, fjcache
 
@@ -19,6 +20,7 @@ import itertools as it, operator as op, functools as ft
 from datetime import datetime
 from collections import defaultdict
 from urlparse import urlparse
+
 
 
 def ctx_get(ctx, k):
@@ -192,6 +194,7 @@ def atomfeed(request):
     'Generates the Atom 1.0 feed.'
     return buildfeed(request=request, feedclass=feedgenerator.Atom1Feed)
 
+@login_required_get_parameters(['marked'])
 @viewdata_decorator
 def mainview(request, view_data):
     response, site, cachekey = view_data

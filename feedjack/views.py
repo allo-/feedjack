@@ -20,6 +20,7 @@ import itertools as it, operator as op, functools as ft
 from datetime import datetime
 from collections import defaultdict
 from urlparse import urlparse
+from collections import OrderedDict
 
 
 
@@ -154,7 +155,7 @@ def buildfeed(request, feedclass, view_data):
             raise Http404("no such feed") # no such feed
         except ValueError: # id not numeric
             raise Http404("non-numeric feed_id")
-    object_list = fjlib.get_page(request, site, page=1).object_list
+    object_list = fjlib.get_page(request, site, page=page).object_list
 
     feed = feedclass( title=feed_title, link=site.url,
         description=site.description, feed_url=u'{0}/{1}'.format(site.url, '/feed/rss/') )
@@ -199,14 +200,87 @@ def atomfeed(request):
 def mainview(request, view_data):
     response, site, cachekey = view_data
     if not response:
-        ctx = fjlib.page_context(request)
+        site = models.Site.objects.get(django_site=get_current_site(request))
+        'Returns the context dictionary for a page view.'
+        try:
+            page = int(request.GET.get('page', 1))
+        except ValueError:
+            page = 1
+        feed, tag = request.GET.get('feed'), request.GET.get('tag')
+
+        if feed:
+            try:
+                feed = models.Feed.objects.get(pk=feed)
+            except ObjectDoesNotExist:
+                raise Http404
+        page = fjlib.get_page(request, site, page=page)
+        subscribers = site.active_subscribers
+
+        # TODO: remove all remaining tag cloud stuff
+        tag_obj, tag_cloud = None, tuple()
+        try:
+            user_obj = None
+            if feed:
+                user_obj = models.Subscriber.objects.get(site=site, feed=feed)
+        except ObjectDoesNotExist:
+            raise Http404
+
+        site_proc_tags = site.processing_tags.strip()
+        if site_proc_tags != 'none':
+            site_proc_tags = filter( None, map(op.methodcaller('strip'), site.processing_tags.split(',')) )
+            # XXX: database hit that can be cached
+            for site_feed, posts in it.groupby(page.object_list, key=op.attrgetter('feed')):
+                proc = site_feed.processor_for_tags(site_proc_tags)
+                if proc:
+                    proc.apply_overlay_to_posts(posts)
+        # TODO: cleanup
+        ctx = {
+            'last_modified': max(it.imap(
+                    op.attrgetter('date_updated'), page.object_list ))\
+                if len(page.object_list) else datetime(1970, 1, 1, 0, 0, 0, 0, timezone.utc),
+            'object_list': page.object_list,
+            'subscribers':  subscribers.select_related('feed'),
+            'tag': tag_obj,
+            'feed': feed,
+            'url_suffixi': ''.join((
+                '/feed/{0}'.format(feed.id) if feed else '',
+                '/tag/{0}'.format(escape(tag)) if tag else '' )),
+            'p': page, # "page" is taken by legacy number
+            'p_10neighbors': OrderedDict(
+                # OrderedDict of "num: exists" values
+                # Use as "{% for p_num, p_exists in p_10neighbors.items|slice:"7:-7" %}"
+                (p, p >= 1 and p <= page.paginator.num_pages)
+                for p in ((page.number + n) for n in xrange(-10, 11)) ),
+
+            ## DEPRECATED:
+            # Totally misnamed and inconsistent b/w user/user_obj,
+            #  use "feed" and "subscribers" instead.
+            'user_id': feed and feed.id,
+            'user': user_obj,
+
+            # Legacy flat pagination context, use "p" instead.
+            'is_paginated': page.paginator.num_pages > 1,
+            'results_per_page': site.posts_per_page,
+            'has_next': page.has_next(),
+            'has_previous': page.has_previous(),
+            'page': page.number,
+            'next': page.number + 1,
+            'previous': page.number - 1,
+            'pages': page.paginator.num_pages,
+            'hits': page.paginator.count,
+            'url_parameters': request.GET
+        }
+        ctx2 = fjlib.get_extra_context(request)
+        for key in ctx2:
+            ctx[key] = ctx2[key]
         response = render(request, u'feedjack/{0}/post_list.html'.format(site.template), ctx)
         # per host caching, in case the cache middleware is enabled
         patch_vary_headers(response, ['Host'])
         if site.use_internal_cache:
             fjcache.cache_set( site, cachekey,
                 (response, ctx_get(ctx, 'last_modified')) )
-    else: response = response[0]
+    else:
+        response = response[0]
     return response
 
 def mark_post(request, post_id, mark):

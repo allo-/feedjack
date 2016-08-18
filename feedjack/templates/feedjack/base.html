@@ -84,12 +84,6 @@
 
 {% if object_list %}
 <div class="paginate">
-    {% if has_previous %}
-        <div class="pageitem"><a href="?page={{ previous }}{% urlparams url_parameters "page" %}">&lt;&lt;</a></div>
-    {% endif %}
-    <div class="pageitem">
-        Page {{ page }} of {{ pages }} ({% blocktrans count hits as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %})
-    </div>
     {% if user %}
         <div class="pageitem username"><a href="{{ user.feed.link }}">{{ user.name }}</a></div>
     {% endif %}
@@ -128,28 +122,6 @@
 {% block content %}
 {% endblock content %}
 </div>
-
-
-<!-- TODO: redundant code with top pagination. use an include -->
-{% if object_list %}
-<div class="paginate">
-{% if has_previous %}
-<div class="pageitem"><a href="?page={{ previous }}{% urlparams url_parameters "page" %}">&lt;&lt;</a></div>
-{% endif %}
-<div class="pageitem">
-  Page {{ page }} of {{ pages }} ({% blocktrans count hits as posts %}{{ posts }} post{% plural %}{{ posts }} posts{% endblocktrans %})
-</div>
-{% if user %}
-<div class="pageitem username"><a href="{{ user.feed.link }}">{{ user.name }}</a></div>
-{% endif %}
-{% if tag %}
-<div class="pageitem tagname">{{ tag.name }}</div>
-{% endif %}
-{% if has_next %}
-<div class="pageitem"><a href="?page={{ next }}{% urlparams url_parameters "page" %}">&gt;&gt;</a></div>
-{% endif %}
-</div>
-{% endif %}
 
 
 <div id="footer">

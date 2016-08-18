@@ -155,7 +155,7 @@ def buildfeed(request, feedclass, view_data):
             raise Http404("no such feed") # no such feed
         except ValueError: # id not numeric
             raise Http404("non-numeric feed_id")
-    object_list = fjlib.get_page(request, site, page=page).object_list
+    object_list = fjlib.get_page(request, site)['posts']
 
     feed = feedclass( title=feed_title, link=site.url,
         description=site.description, feed_url=u'{0}/{1}'.format(site.url, '/feed/rss/') )
@@ -201,11 +201,6 @@ def mainview(request, view_data):
     response, site, cachekey = view_data
     if not response:
         site = models.Site.objects.get(django_site=get_current_site(request))
-        'Returns the context dictionary for a page view.'
-        try:
-            page = int(request.GET.get('page', 1))
-        except ValueError:
-            page = 1
         feed, tag = request.GET.get('feed'), request.GET.get('tag')
 
         if feed:
@@ -213,7 +208,8 @@ def mainview(request, view_data):
                 feed = models.Feed.objects.get(pk=feed)
             except ObjectDoesNotExist:
                 raise Http404
-        page = fjlib.get_page(request, site, page=page)
+        page = fjlib.get_page(request, site)
+        object_list = page['posts']
         subscribers = site.active_subscribers
 
         # TODO: remove all remaining tag cloud stuff
@@ -229,28 +225,22 @@ def mainview(request, view_data):
         if site_proc_tags != 'none':
             site_proc_tags = filter( None, map(op.methodcaller('strip'), site.processing_tags.split(',')) )
             # XXX: database hit that can be cached
-            for site_feed, posts in it.groupby(page.object_list, key=op.attrgetter('feed')):
+            for site_feed, posts in it.groupby(object_list, key=op.attrgetter('feed')):
                 proc = site_feed.processor_for_tags(site_proc_tags)
                 if proc:
                     proc.apply_overlay_to_posts(posts)
         # TODO: cleanup
         ctx = {
             'last_modified': max(it.imap(
-                    op.attrgetter('date_updated'), page.object_list ))\
-                if len(page.object_list) else datetime(1970, 1, 1, 0, 0, 0, 0, timezone.utc),
-            'object_list': page.object_list,
+                    op.attrgetter('date_updated'), object_list ))\
+                if len(object_list) else datetime(1970, 1, 1, 0, 0, 0, 0, timezone.utc),
+            'object_list': object_list,
             'subscribers':  subscribers.select_related('feed'),
             'tag': tag_obj,
             'feed': feed,
             'url_suffixi': ''.join((
                 '/feed/{0}'.format(feed.id) if feed else '',
                 '/tag/{0}'.format(escape(tag)) if tag else '' )),
-            'p': page, # "page" is taken by legacy number
-            'p_10neighbors': OrderedDict(
-                # OrderedDict of "num: exists" values
-                # Use as "{% for p_num, p_exists in p_10neighbors.items|slice:"7:-7" %}"
-                (p, p >= 1 and p <= page.paginator.num_pages)
-                for p in ((page.number + n) for n in xrange(-10, 11)) ),
 
             ## DEPRECATED:
             # Totally misnamed and inconsistent b/w user/user_obj,
@@ -258,17 +248,8 @@ def mainview(request, view_data):
             'user_id': feed and feed.id,
             'user': user_obj,
 
-            # Legacy flat pagination context, use "p" instead.
-            'is_paginated': page.paginator.num_pages > 1,
-            'results_per_page': site.posts_per_page,
-            'has_next': page.has_next(),
-            'has_previous': page.has_previous(),
-            'page': page.number,
-            'next': page.number + 1,
-            'previous': page.number - 1,
-            'pages': page.paginator.num_pages,
-            'hits': page.paginator.count,
-            'url_parameters': request.GET
+            'num_next': page['num_next'],
+            'url_parameters': request.GET,
         }
         ctx2 = fjlib.get_extra_context(request)
         for key in ctx2:

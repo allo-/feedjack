@@ -52,7 +52,7 @@
       <div class="paginate">
       <div class="pageitem">
           <a href="?since={{ item.date_modified|date:"Y-m-d H:i"|iriencode }}{% urlparams url_parameters "since" %}")" onclick='loadPage("?since={{ item.date_modified|date:"Y-m-d H:i"|iriencode }}{% urlparams url_parameters "since" %}");event.preventDefault()'>Next</a>
-      </div>
+      </div>({{ num_next }} more posts)
       </div>
   {% endif %}
   </div>

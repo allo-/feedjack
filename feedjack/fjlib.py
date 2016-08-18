@@ -6,7 +6,6 @@ from django.conf import settings
 from django.db import connection
 from django.db.models import Q, Max
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
 from django.utils.encoding import smart_unicode, force_unicode
 from django.utils.html import escape
@@ -123,11 +122,20 @@ def get_posts_tags(subscribers, object_list, feed, tag_name):
 
 	return user_obj, tag_obj
 
-def get_page(request, site, page=1):
-	'Returns a paginator object and a requested page from it.'
+def get_page(request, site):
+	"""
+		Returns a list of Post objects for a given request.
+		The list is possibly filtered by GET-Parameters like
+		- since=date
+		- until=date
+		- asc=1
+		- marked=U
+		or for a group of Subscribers or a single Subscriber
+	"""
 
 	criterias = {}
 
+	# date filtering and sorting
 	try:
 		posts = models.Post.objects.filtered(site, **criterias)\
 			.select_related('feed')
@@ -175,20 +183,20 @@ def get_page(request, site, page=1):
 		else:
 			posts = posts.filter(postmark__user=request.user, postmark__mark__in=mark_filter)
 
-	paginator = Paginator(posts, site.posts_per_page)
-	try:
-		paginator_page = paginator.page(page)
-	except InvalidPage:
-		raise Http404()
+	num_next = posts[site.posts_per_page:].count()
 
+	posts = posts[:site.posts_per_page]
+
+	# add details to the Post objects
 	if request.user.is_authenticated():
-		for post in paginator_page.object_list:
-			mark = None
-			if request.user.is_authenticated():
-				mark = models.PostMark.objects.filter(user=request.user, post=post)
+		for post in posts:
+			mark = models.PostMark.objects.filter(user=request.user, post=post)
 			if mark:
 				post.mark = mark[0].mark
 			else:
 				post.mark = "U" #unread
 
-	return paginator_page
+	return {
+		'posts': posts,
+		'num_next': num_next,
+	}

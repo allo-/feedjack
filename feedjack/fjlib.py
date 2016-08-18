@@ -127,30 +127,30 @@ def get_page(request, site, page=1):
 	'Returns a paginator object and a requested page from it.'
 
 	criterias = {}
-	if 'since' in request.GET:
-		since = request.GET.get('since')
-		criterias['since'] = since
-	if 'until' in request.GET:
-		until = request.GET.get('until')
-		criterias['until'] = until
-	group = request.GET.get("group", None)
-	subscriber = request.GET.get("subscriber", None)
-
-	asc = False
-	if request.GET.get('asc', None) == "1":
-		asc = True
-		criterias['asc'] = True
-	else:
-		criterias['asc'] = False
 
 	try:
-		sorting = models.SITE_ORDERING_REVERSE[site.order_posts_by]
-		if not asc:
-		   sorting = "-" + sorting
-
 		posts = models.Post.objects.filtered(site, **criterias)\
-			.order_by(sorting, 'feed', '-date_created')\
 			.select_related('feed')
+
+		sorting = models.SITE_ORDERING_REVERSE[site.order_posts_by]
+
+		if request.GET.get("asc", None) == "1":
+			if 'since' in request.GET:
+				posts = posts.filter(date_modified__gt=request.GET.get('since'))
+			if 'until' in request.GET:
+				posts = posts.filter(date_modified__lt=request.GET.get('since'))
+		else:
+			sorting = "-" + sorting
+			if 'since' in request.GET:
+				posts = posts.filter(date_modified__lt=request.GET.get('since'))
+			if 'until' in request.GET:
+				posts = posts.filter(date_modified__gt=request.GET.get('since'))
+
+		posts = posts.order_by(sorting, 'feed', '-date_created')
+
+		group = request.GET.get("group", None)
+		subscriber = request.GET.get("subscriber", None)
+
 		if subscriber:
 			try:
 				posts = posts.filter(feed__subscriber=subscriber)

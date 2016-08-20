@@ -194,6 +194,19 @@ def get_page(request, site):
 		if until:
 			until = timezone.make_aware(timezone.datetime.strptime(until, "%Y-%m-%d %H:%M:%S"), timezone.UTC())
 
+		# calculate the postings after the current page
+		next_posts = posts
+		if asc and since:
+			next_posts = posts.filter(date_modified__lte=since)
+		elif not asc and until:
+			next_posts = posts.filter(date_modified__gte=until)
+		next_posts = next_posts[site.posts_per_page:] # default
+
+		if asc and until: # old to new, end date (newest) of current page given
+			next_posts = posts.filter(date_modified__gt=until)
+		elif not asc and since: # new to old, end date (oldest) of current page given
+			next_posts = posts.filter(date_modified__lt=since)
+
 		# filter oldest date
 		if since:
 			if asc:
@@ -208,13 +221,6 @@ def get_page(request, site):
 				previous_until_date = previous_page[0 if asc else -1].date_modified.strftime("%Y-%m-%d %H:%M:%S")
 
 			posts = posts.filter(date_modified__gte=since)
-
-		# calculate the postings after the current page
-		next_posts = posts[site.posts_per_page:] # default
-		if asc and until: # old to new, end date (newest) of current page given
-			next_posts = posts.filter(date_modified__gt=until)
-		elif not asc and since: # new to old, end date (oldest) of current page given
-			next_posts = posts.filter(date_modified__lt=since)
 
 		# filter newest date
 		if until:

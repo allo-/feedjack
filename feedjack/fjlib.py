@@ -137,24 +137,16 @@ def get_page(request, site):
 
 	# date filtering and sorting
 	try:
-		posts = models.Post.objects.filtered(site, **criterias)\
-			.select_related('feed')
+		posts = models.Post.objects.filtered(site, **criterias).select_related('feed')
 
-		sorting = models.SITE_ORDERING_REVERSE[site.order_posts_by]
-
-		if request.GET.get("asc", None) == "1":
-			if 'since' in request.GET:
-				posts = posts.filter(date_modified__gt=request.GET.get('since'))
-			if 'until' in request.GET:
-				posts = posts.filter(date_modified__lt=request.GET.get('since'))
-		else:
-			sorting = "-" + sorting
-			if 'since' in request.GET:
-				posts = posts.filter(date_modified__lt=request.GET.get('since'))
-			if 'until' in request.GET:
-				posts = posts.filter(date_modified__gt=request.GET.get('since'))
-
-		posts = posts.order_by(sorting, 'feed', '-date_created')
+		# filter by PostMark, like ?marked=U,I,L or ?marked=R
+		mark_filter = request.GET.get("marked", "")
+		if mark_filter and request.user.is_authenticated():
+			mark_filter = mark_filter.split(",")
+			if "U" in mark_filter: # for unread, list posts without PostMark object, too
+				posts = posts.filter(Q(postmark__user=request.user, postmark__mark__in=mark_filter)|~Q(postmark__user=request.user))
+			else:
+				posts = posts.filter(postmark__user=request.user, postmark__mark__in=mark_filter)
 
 		group = request.GET.get("group", None)
 		subscriber = request.GET.get("subscriber", None)
@@ -171,19 +163,72 @@ def get_page(request, site):
 				posts = posts.filter(feed__subscriber__in=group_subscribers)
 			except ValueError:
 				raise Http404("Malformed group parameter")
+
+		since = request.GET.get("since")
+		until = request.GET.get("until")
+		sorting = models.SITE_ORDERING_REVERSE[site.order_posts_by]
+		num_previous = None
+		num_next = None
+		previous_since_date = ""
+		previous_until_date = ""
+		next_since_date = ""
+		next_until_date = ""
+
+		asc = request.GET.get("asc") == "1"
+
+		if not asc:
+			sorting = "-" + sorting
+		posts = posts.order_by(sorting, 'feed', '-date_created')
+
+		# current page:  filter since <= posts <= until, cut at posts_per_page items
+		# previous page: filter since > posts, reverse order, cut at posts_per_page items
+		#				and use date of last item as since date and the first item as until date
+		# next page:	 since = date of current_page.last +1 item
+		#
+		# the resulting pages will not always have exactly posts_per_page items, because when posts
+		# have exactly the same date and one is on the page and one on the next, the item on the next
+		# page will be included on the current page as well.
+
+		if since:
+			since = timezone.make_aware(timezone.datetime.strptime(since, "%Y-%m-%d %H:%M:%S"), timezone.UTC())
+		if until:
+			until = timezone.make_aware(timezone.datetime.strptime(until, "%Y-%m-%d %H:%M:%S"), timezone.UTC())
+
+		# filter oldest date
+		if since:
+			if asc:
+				previous = posts.filter(date_modified__lt=since).reverse()
+			else:
+				previous = posts.filter(date_modified__gt=until).reverse()
+			num_previous = previous.count()
+			previous_page = list(previous[:site.posts_per_page])
+
+			if num_previous:
+				previous_since_date = previous_page[-1 if asc else 0].date_modified.strftime("%Y-%m-%d %H:%M:%S")
+				previous_until_date = previous_page[0 if asc else -1].date_modified.strftime("%Y-%m-%d %H:%M:%S")
+
+			posts = posts.filter(date_modified__gte=since)
+
+		# calculate the postings after the current page
+		next_posts = posts[site.posts_per_page:] # default
+		if asc and until: # old to new, end date (newest) of current page given
+			next_posts = posts.filter(date_modified__gt=until)
+		elif not asc and since: # new to old, end date (oldest) of current page given
+			next_posts = posts.filter(date_modified__lt=since)
+
+		# filter newest date
+		if until:
+			posts = posts.filter(date_modified__lte=until)
+
+		num_next = next_posts.count()
+		next_page = list(next_posts[:site.posts_per_page])
+
+		if num_next:
+			next_since_date = next_page[0 if asc else -1].date_modified.strftime("%Y-%m-%d %H:%M:%S")
+			next_until_date = next_page[-1 if asc else 0].date_modified.strftime("%Y-%m-%d %H:%M:%S")
+
 	except ValidationError:
 		raise Http404('Validation Error (probably malformed since/until date)')
-
-	# filter by PostMark, like ?marked=U,I,L or ?marked=R
-	mark_filter = request.GET.get("marked", "")
-	if mark_filter and request.user.is_authenticated():
-		mark_filter = mark_filter.split(",")
-		if "U" in mark_filter: # for unread, list posts without PostMark object, too
-			posts = posts.filter(Q(postmark__user=request.user, postmark__mark__in=mark_filter)|~Q(postmark__user=request.user))
-		else:
-			posts = posts.filter(postmark__user=request.user, postmark__mark__in=mark_filter)
-
-	num_next = posts[site.posts_per_page:].count()
 
 	posts = posts[:site.posts_per_page]
 
@@ -199,4 +244,9 @@ def get_page(request, site):
 	return {
 		'posts': posts,
 		'num_next': num_next,
+		'num_previous': num_previous,
+		'previous_since_date': previous_since_date,
+		'previous_until_date': previous_until_date,
+		'next_since_date': next_since_date,
+		'next_until_date': next_until_date,
 	}

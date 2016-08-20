@@ -249,6 +249,11 @@ def mainview(request, view_data):
             'user': user_obj,
 
             'num_next': page['num_next'],
+            'num_previous': page['num_previous'],
+            'previous_since_date': page['previous_since_date'],
+            'previous_until_date': page['previous_until_date'],
+            'next_since_date': page['next_since_date'],
+            'next_until_date': page['next_until_date'],
             'url_parameters': request.GET,
         }
         ctx2 = fjlib.get_extra_context(request)

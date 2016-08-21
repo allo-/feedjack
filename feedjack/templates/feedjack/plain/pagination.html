@@ -1,0 +1,11 @@
+{% load i18n %}
+{% load urlparams %}
+<div class="paginate">
+({{ num_previous }} previous posts)
+<div class="pageitem">
+  <a href="?since={{ previous_since_date|iriencode }}&amp;until={{ previous_until_date|iriencode }}{% urlparams url_parameters "since&until" %}" onclick='loadPage("?since={{ previous_since_date|iriencode }}&amp;until={{ previous_until_date|iriencode }}{% urlparams url_parameters "since&until" %}");event.preventDefault()'>Previous</a>
+</div>
+<div class="pageitem">
+  <a href="?since={{ next_since_date|iriencode }}&amp;until={{ next_until_date|iriencode }}{% urlparams url_parameters "since&until" %}" onclick='loadPage("?since={{ next_since_date|iriencode }}&amp;until={{ next_until_date|iriencode }}{% urlparams url_parameters "since&until" %}");event.preventDefault()'>Next</a>
+</div>({{ num_next }} more posts)
+</div>

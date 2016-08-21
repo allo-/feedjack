@@ -82,38 +82,6 @@
     </div>
 </div>
 
-{% if object_list %}
-<div class="paginate">
-    {% if user %}
-        <div class="pageitem username"><a href="{{ user.feed.link }}">{{ user.name }}</a></div>
-    {% endif %}
-    {% if tag %}
-        <div class="pageitem tagname">{{ tag.name }}</div>
-    {% endif %}
-    <p />
-    <table>
-    <tr>
-        <td style="text-align: right"> Filter by:</td>
-        <td style="text-align: left">
-            <a href="?marked=U{% urlparams url_parameters "marked&since&until" %}">Unread</a>
-            <a href="?marked=R{% urlparams url_parameters "marked&since&until" %}">Read</a>
-            <a href="?marked=L{% urlparams url_parameters "marked&since&until" %}">Read Later</a>
-            <a href="?marked=F{% urlparams url_parameters "marked&since&until" %}">Favorite</a>
-            <a href="?marked=I{% urlparams url_parameters "marked&since&until" %}">Important</a>
-        </td>
-    </tr>
-    <tr>
-        <td style="text-align: right">Order:</td>
-        <td style="text-align: left">
-            <a href="?asc=1{% urlparams url_parameters "asc&since&until" %}">From old to new</a>
-            <br />
-            <a href="?{% urlparams url_parameters "asc&since&until" %}">From new to old</a>
-        </td>
-    </tr>
-    </table>
-</div>
-{% endif %}
-
 <div id="content">
 {% block content %}
 {% endblock content %}

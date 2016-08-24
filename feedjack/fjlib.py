@@ -256,4 +256,5 @@ def get_page(request, site):
 		'previous_until_date': previous_until_date,
 		'next_since_date': next_since_date,
 		'next_until_date': next_until_date,
+		'subscriber_filter': subscriber,
 	}

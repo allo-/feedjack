@@ -82,78 +82,31 @@
     </div>
 </div>
 
-<div id="content">
-{% block content %}
-{% endblock content %}
+
+<div id="main" style="margin: 0 auto;max-width: 90em;display: flex;flex-wrap: wrap">
+<div id="sidebar" style="margin-right: 0.5em;min-width: 20em;display: flex">
+{% block sidebar %}
+{% endblock %}
 </div>
+<div id="content" style="margin: 0">
+{% block content %}
+{% endblock %}
+</div>
+</div>
+<p style="clear: both" />
+
 
 
 <div id="footer">
-<div class="post-title">{% trans "People" %}</div>
-<div class="post-content">
 
-{% for group in groups %}
-    <div class="groupname"><a href="?group={{group.id}}{% urlparams url_parameters "group&since&until" %}">{{ group.name }}</a></div>
-    <div class="group">
-    {% for subscriber in group.subscriber_set.all %}
-    <span>
-        <a class="nombre" href="?subscriber={{ subscriber.id }}{% urlparams url_parameters "subscriber&group&since&until" %}" title="{{ subscriber.feed.title }}">
-            {{ subscriber.name }}
-        </a>
-        (<a href="{{ subscriber.feed.link }}">{% trans "website" %}</a>,
-        <a href="{{ subscriber.feed.feed_url }}" {% if subscriber.feed.last_modified %}title="{% blocktrans with subscriber.feed.last_modified as last_modified %} feed (last modified: {{ last_modified }}){% endblocktrans %}"{% else %}title="{% trans "feed" %}"{% endif %}>
-            {% trans "feed" %}
-        </a>)
-    </span>
-    {% endfor %}
-    </div>
-{% endfor %}
-
-<div class="groupname">Ungrouped</div>
-<div class="group">
-{% for subscriber in ungrouped %}
-    <span>
-        <a class="nombre" href="?subscriber={{ subscriber.id }}{% urlparams url_parameters "subscriber&group&since&until" %}" title="{{ subscriber.feed.title }}">
-            {{ subscriber.name }}
-        </a>
-        (<a href="{{ subscriber.feed.link }}">{% trans "website" %}</a>,
-        <a href="{{ subscriber.feed.feed_url }}" {% if subscriber.feed.last_modified %}title="{% blocktrans with subscriber.feed.last_modified as last_modified %} feed (last modified: {{ last_modified }}){% endblocktrans %}"{% else %}title="{% trans "feed" %}"{% endif %}>
-            {% trans "feed" %}
-        </a>)
-    </span>
-{% endfor %}
-</div>
-</div>
-
-{% comment %}
-<!-- TODO: as fancy date parsing is removed, the date parameters for the urls need to be calculated in views.py -->
-<div class="groupname">new posts</div>
-<div class="group">
-    <a href="?since=yesterday&asc=0{% urlparams url_parameters "since&asc" %}">since yesterday</a>
-    <a href="?since=yesterday&asc=1{% urlparams url_parameters "since&asc" %}">(older posts first)</a>
-    &nbsp;&nbsp;
-    <a href="?since=week&asc=0{% urlparams url_parameters "since&asc" %}">since last week</a>
-    <a href="?since=week&asc=1{% urlparams url_parameters "since&asc" %}">(older posts first)</a>
-    &nbsp;&nbsp;
-    <a href="?since=10_days&asc=0{% urlparams url_parameters "since&asc" %}">since 10 days</a>
-    <a href="?since=10_days&asc=1{% urlparams url_parameters "since&asc" %}">(older posts first)</a>
-    &nbsp;&nbsp;
-    <a href="?since=30_days&asc=0{% urlparams url_parameters "since&asc" %}">since 30 days</a>
-    <a href="?since=30_days&asc=1{% urlparams url_parameters "since&asc" %}">(older posts first)</a>
-    &nbsp;&nbsp;
-    <a href="?since={% now "Y-m-d H:i" %}&asc=0{% urlparams url_parameters "since&asc" %}" title="open this now and refresh it later to see which posts are new">since NOW</a>
-    <a href="?since={% now "Y-m-d H:i" %}&asc=1{% urlparams url_parameters "since&asc" %}" %}/">(older posts first)</a>
-</div>
-{% endcomment %}
 {% if request.user.is_authenticated %}
     <div class="groupname">Admin</div>
     <div class="group">
     <a href="/admin/feedjack/subscriber/add/">add Subscriber</a>
     </div>
+    </div>
 {%endif%}
 
-</div>
-</div>
 </div>
 </body>
 

@@ -4,7 +4,6 @@
 {% load html %}
 
 {% block content %}
-{% include "feedjack/plain/filters.html" %}
 {% include "feedjack/plain/pagination.html" %}
 
 {% for item in object_list %}
@@ -55,3 +54,72 @@
 {% endfor %}
 {% include "feedjack/plain/pagination.html" %}
 {% endblock content %}
+
+{% block sidebar %}
+
+{% comment %}
+TODO:
+- Move style to css file
+- Add underline on hover
+- Use same background colors for sorting options like the active mark buttons
+- possibly add links to websites associated with feeds somewhere again
+- get flex-wrap to work: the group-boxes should wrap in a horizontal row, when the window is not wide enough to display the sidebar
+{% endcomment %}
+<div style="margin: 1em 0;background-color: white;display: flex;flex-wrap: wrap;flex-direction: column">
+    <div style="background-color: lightgrey">
+        <div style="border: thin solid black;background-color: #6E9C60;color: white;font-size: 150%;font-style: italic;">
+            Sorting &amp; Filters
+        </div>
+        <ul style="list-style: none;padding: 0 0.5em;font-size: 120%;margin: 0.2em 0;max-width: 20em;background-color: lightgrey">
+            <li>
+                <a href="?asc=1{% urlparams url_parameters "asc&since&until" %}" style="color: black;text-decoration: none;{% if url_parameters.asc == "1" %}font-weight:bold{% endif %}">Old to New</a>
+                /
+                <a href="?{% urlparams url_parameters "asc&since&until" %}" style="color: black;text-decoration: none;text-decoration: none;{% if url_parameters.asc != "1" %}font-weight:bold{% endif %}">New to Old</a>
+            </li>
+            <li>
+                <a href="?marked=U{% urlparams url_parameters "marked&since&until" %}" style="color: black;text-decoration: none;text-decoration: none;{% if "U" in url_parameters.marked %}font-weight:bold{% endif %}">Unread</a>
+            </li>
+            <li>
+                <a href="?marked=R{% urlparams url_parameters "marked&since&until" %}" style="color: black;text-decoration: none;{% if "R" in url_parameters.marked %}font-weight:bold{% endif %}">Read</a>
+            </li>
+            <li>
+                <a href="?marked=L{% urlparams url_parameters "marked&since&until" %}" style="color: black;text-decoration: none;{% if "L" in url_parameters.marked %}font-weight:bold{% endif %}">Read Later</a>
+            </li>
+            <li>
+                <a href="?marked=F{% urlparams url_parameters "marked&since&until" %}" style="color: black;text-decoration: none;{% if "F" in url_parameters.marked %}font-weight:bold{% endif %}">Favorite</a>
+            </li>
+            <li>
+                <a href="?marked=I{% urlparams url_parameters "marked&since&until" %}" style="color: black;text-decoration: none;{% if "I" in url_parameters.marked %}font-weight:bold{% endif %}">Important</a>
+            </li>
+            <li>
+                <a href="?{% urlparams url_parameters "marked&since&until" %}" style="color: black;text-decoration: none">No Filters</a>
+            </li>
+        </ul>
+    </div>
+{% for group in groups %}
+    <div>
+            <div style="border: thin solid black;background-color: #6E9C60;color: white;font-size: 150%">
+                    <a href="?group={{ group.id }}{% urlparams url_parameters "group&since&until" %}" style="color: white;font-weight: bold;text-decoration: none">{{ group.name }}</a>
+            </div>
+            <ul style="list-style: none;padding: 0 0.5em;font-size: 120%;margin: 0.2em 0;max-width: 20em">
+                {% for subscriber in group.subscriber_set.all %}
+                <li>
+                    <a href="?subscriber={{ subscriber.id }}{% urlparams url_parameters "subscriber&group&since&until" %}" title="{{ subscriber.feed.title }}" style="color: black;text-decoration: none;{% for s in subscriber_filter %}{% if s == subscriber.id|stringformat:"s" %}font-weight: bold;{% endif %}{% endfor %}{% if group.id|stringformat:"s" == url_parameters.group %}font-weight: bold;{% endif %}"> {{ subscriber.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+    </div>
+{% endfor groups %}
+    <div style="border: thin solid black;background-color: #6E9C60;color: white;font-size: 150%;font-style: italic;">
+        Ungrouped
+    </div>
+    <ul style="list-style: none;padding: 0 0.5em;font-size: 120%;margin: 0.2em 0;max-width: 20em">
+        {% for subscriber in ungrouped %}
+        <li>
+        <a href="?subscriber={{ subscriber.id }}{% urlparams url_parameters "subscriber&group&since&until" %}" title="{{ subscriber.feed.title }}" style="color: black;text-decoration: none;{% for s in subscriber_filter %}{% if s == subscriber.id|stringformat:"s" %}font-weight: bold{% endif %}{% endfor %}"> {{ subscriber.name }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

@@ -152,8 +152,9 @@ def get_page(request, site):
 		subscriber = request.GET.get("subscriber", None)
 
 		if subscriber:
+			subscriber = subscriber.split(",")
 			try:
-				posts = posts.filter(feed__subscriber=subscriber)
+				posts = posts.filter(feed__subscriber__in=subscriber)
 			except ValueError:
 				raise Http404("Malformed subscriber parameter")
 		elif group:

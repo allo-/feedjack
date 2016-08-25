@@ -110,16 +110,18 @@ TODO:
             </ul>
     </div>
 {% endfor groups %}
-    <div style="border: thin solid black;background-color: #6E9C60;color: white;font-size: 150%;font-style: italic;">
-        Ungrouped
+    <div>
+        <div style="border: thin solid black;background-color: #6E9C60;color: white;font-size: 150%;font-style: italic;">
+            Ungrouped
+        </div>
+        <ul style="list-style: none;padding: 0 0.5em;font-size: 120%;margin: 0.2em 0;max-width: 20em">
+            {% for subscriber in ungrouped %}
+            <li>
+            <a href="?subscriber={{ subscriber.id }}{% urlparams url_parameters "subscriber&group&since&until" %}" title="{{ subscriber.feed.title }}" style="color: black;text-decoration: none;{% for s in subscriber_filter %}{% if s == subscriber.id|stringformat:"s" %}font-weight: bold{% endif %}{% endfor %}"> {{ subscriber.name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
     </div>
-    <ul style="list-style: none;padding: 0 0.5em;font-size: 120%;margin: 0.2em 0;max-width: 20em">
-        {% for subscriber in ungrouped %}
-        <li>
-        <a href="?subscriber={{ subscriber.id }}{% urlparams url_parameters "subscriber&group&since&until" %}" title="{{ subscriber.feed.title }}" style="color: black;text-decoration: none;{% for s in subscriber_filter %}{% if s == subscriber.id|stringformat:"s" %}font-weight: bold{% endif %}{% endfor %}"> {{ subscriber.name }}</a>
-        </li>
-        {% endfor %}
-    </ul>
 </div>
 
 {% endblock %}

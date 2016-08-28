@@ -99,7 +99,7 @@ TODO:
 {% for group in groups %}
     <div>
         <div style="border: thin solid black;background-color: #6E9C60;color: white;font-size: 150%">
-                <a href="?group={{ group.id }}{% urlparams url_parameters "group&since&until" %}" style="color: white;font-weight: bold;text-decoration: none">{{ group.name }}</a>
+                <a href="?group={{ group.id }}{% urlparams url_parameters "group&since&until&subscriber" %}" style="color: white;font-weight: bold;text-decoration: none">{{ group.name }}</a>
         </div>
         <ul style="list-style: none;padding: 0 0.5em;font-size: 120%;margin: 0.2em 0;max-width: 20em">
             {% for subscriber in group.subscriber_set.all %}

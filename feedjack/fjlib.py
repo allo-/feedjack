@@ -81,7 +81,7 @@ def get_extra_context(request):
 	#  use static_url or STATIC_URL (from django context) in any new templates.
 	ctx['media_url'] = ctx['static_url'] =\
 		'{}feedjack/{}'.format(settings.STATIC_URL, feedjack_site.template)
-	ctx['groups'] = models.Group.objects.filter(subscriber__site=feedjack_site).distinct()
+	ctx['groups'] = models.Group.objects.filter(subscriber__site=feedjack_site).distinct().prefetch_related('subscriber_set__feed')
 	ctx['ungrouped'] = models.Subscriber.objects.filter(group=None, site=feedjack_site)
 
 	return ctx

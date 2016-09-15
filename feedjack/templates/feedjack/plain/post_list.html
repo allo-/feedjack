@@ -122,6 +122,16 @@ TODO:
             {% endfor %}
         </ul>
     </div>
+    <div>
+        {% if request.user.is_authenticated %}
+            <div style="border: thin solid black;background-color: #6E9C60;color: white;font-size: 150%;font-style: italic;">
+                Admin
+            </div>
+            <ul style="list-style: none;padding: 0 0.5em;font-size: 120%;margin: 0.2em 0;max-width: 20em">
+                <li><a href="/admin/feedjack/subscriber/add/">add Subscriber</a></li>
+            </ul>
+        {%endif%}
+    </div>
 </div>
 
 {% endblock %}

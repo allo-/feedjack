@@ -69,8 +69,8 @@ div {
     /*width: 75%;*/
 }
 
-#content, .paginate, #footer {
-	max-width: 60em;
+#content, #footer {
+	width: 60em;
 	margin: 0 auto;
 	border-left: 0.5px dashed #555;
 	border-right: 0.5px dashed #555;
